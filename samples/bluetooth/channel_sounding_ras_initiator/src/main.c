@@ -16,6 +16,7 @@
 #include <bluetooth/scan.h>
 #include <bluetooth/services/ras.h>
 #include <bluetooth/gatt_dm.h>
+#include <zephyr/settings/settings.h>
 #include "distance_estimation.h"
 
 #include <dk_buttons_and_leds.h>
@@ -333,6 +334,10 @@ int main(void)
 	if (err) {
 		LOG_ERR("Bluetooth init failed (err %d)", err);
 		return 0;
+	}
+
+	if (IS_ENABLED(CONFIG_SETTINGS)) {
+		settings_load();
 	}
 
 	err = scan_init();
