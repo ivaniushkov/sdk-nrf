@@ -474,9 +474,11 @@ static void radio_config(nrf_radio_mode_t mode, enum transmit_pattern pattern)
 	nrf_radio_modecnf0_set(NRF_RADIO, true, RADIO_MODECNF0_DTX_Center);
 #endif /* defined(CONFIG_SOC_SERIES_NRF54HX) || defined(CONFIG_SOC_SERIES_NRF54LX) */
 
-	/* Disable CRC. */
-	nrf_radio_crc_configure(NRF_RADIO, RADIO_CRCCNF_LEN_Disabled,
-				NRF_RADIO_CRC_ADDR_INCLUDE, 0);
+	/* Enable CRC. */
+	nrf_radio_crc_configure(NRF_RADIO,
+				RADIO_CRCCNF_LEN_Three,
+				NRF_RADIO_CRC_ADDR_SKIP,
+				0x65b);
 
 	/* Set the device address 0 to use when transmitting. */
 	nrf_radio_txaddress_set(NRF_RADIO, 0);
@@ -660,21 +662,21 @@ static void generate_modulated_rf_packet(uint8_t mode,
 	if (mode == NRF_RADIO_MODE_IEEE802154_250KBIT) {
 		tx_packet[0] = IEEE_MAX_PAYLOAD_LEN - 1;
 	} else {
-		tx_packet[0] = sizeof(tx_packet) - 1;
+		tx_packet[0] = 1;
 	}
 #else
-	tx_packet[0] = sizeof(tx_packet) - 1;
+	tx_packet[0] = 1;
 #endif /* CONFIG_HAS_HW_NRF_RADIO_IEEE802154 */
 
 	switch (pattern) {
 	case TRANSMIT_PATTERN_RANDOM:
-		sys_rand_get(tx_packet + 1, sizeof(tx_packet) - 1);
+		sys_rand_get(tx_packet + 1, sizeof(tx_packet) - 5);
 		break;
 	case TRANSMIT_PATTERN_11001100:
-		memset(tx_packet + 1, 0xCC, sizeof(tx_packet) - 1);
+		tx_packet[1] = 0xCC;
 		break;
 	case TRANSMIT_PATTERN_11110000:
-		memset(tx_packet + 1, 0xF0, sizeof(tx_packet) - 1);
+		tx_packet[1] = 0xF0;
 		break;
 	default:
 		/* Do nothing. */
@@ -1127,6 +1129,8 @@ void radio_handler(const void *context)
 	    nrf_radio_event_check(NRF_RADIO, NRF_RADIO_EVENT_CRCOK)) {
 		nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_CRCOK);
 		rx_packet_cnt++;
+		printk("rx_packet: 0x%02x 0x%02x 0x%02x 0x%02x\n",
+			rx_packet[0], rx_packet[1], rx_packet[2], rx_packet[3]);
 		if (config->params.rx.packets_num) {
 			if (rx_packet_cnt == config->params.rx.packets_num) {
 				k_work_reschedule(&rx_timeout_work, K_NO_WAIT);
