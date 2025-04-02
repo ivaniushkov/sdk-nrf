@@ -1134,6 +1134,17 @@ static void timer_init(const struct radio_test_config *config)
 	}
 }
 
+static uint32_t rx_pckts_content_stats[256];
+
+static void print_rx_stats(void)
+{
+	for (int i = 0; i < 256; i++) {
+		if (rx_pckts_content_stats[i] > 0) {
+			printk("0x%02X: %u\n", i, rx_pckts_content_stats[i]);
+		}
+	}
+}
+
 void radio_handler(const void *context)
 {
 	const struct radio_test_config *config =
@@ -1143,8 +1154,17 @@ void radio_handler(const void *context)
 	    nrf_radio_event_check(NRF_RADIO, NRF_RADIO_EVENT_CRCOK)) {
 		nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_CRCOK);
 		rx_packet_cnt++;
-		printk("rx_packet: 0x%02x 0x%02x 0x%02x 0x%02x\n",
-			rx_packet[0], rx_packet[1], rx_packet[2], rx_packet[3]);
+		uint8_t data_byte_idx = 1;
+		#if USE_S1_BYTE == 1
+		data_byte_idx = 2;
+		#endif
+		rx_pckts_content_stats[rx_packet[data_byte_idx]]++;
+
+		if (rx_packet_cnt % 250 == 0) {
+			printk("Received %u packets\n", rx_packet_cnt);
+			print_rx_stats();
+		}
+
 		if (config->params.rx.packets_num) {
 			if (rx_packet_cnt == config->params.rx.packets_num) {
 				k_work_reschedule(&rx_timeout_work, K_NO_WAIT);
