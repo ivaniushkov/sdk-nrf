@@ -28,6 +28,8 @@
 #include "fem_al/fem_al.h"
 #endif /* CONFIG_FEM */
 
+#define USE_S1_BYTE 1
+
 /* IEEE 802.15.4 default frequency. */
 #define IEEE_DEFAULT_FREQ         (5)
 /* Length on air of the LENGTH field. */
@@ -577,7 +579,10 @@ static void radio_config(nrf_radio_mode_t mode, enum transmit_pattern pattern)
 		 * 16-bit preamble.
 		 */
 		packet_conf.plen = NRF_RADIO_PREAMBLE_LENGTH_16BIT;
-
+#if USE_S1_BYTE == 1
+		packet_conf.s1incl = true; /* enable S1 byte */
+		packet_conf.s1len = 0;     /* enabled S1 byte is not used but presented in RAM */
+#endif
 		/* preamble, address (BALEN + PREFIX), lflen and payload */
 		total_payload_size = 2 + (packet_conf.balen + 1) + 1 + packet_conf.maxlen;
 		break;
@@ -669,18 +674,23 @@ static void generate_modulated_rf_packet(uint8_t mode,
 	tx_packet[0] = 1;
 #endif /* CONFIG_HAS_HW_NRF_RADIO_IEEE802154 */
 
+	uint8_t data_byte_idx = 1;
+#if USE_S1_BYTE == 1
+	data_byte_idx = 2; //use [2] because [1] is used for S1
+#endif
+
 	switch (pattern) {
 	case TRANSMIT_PATTERN_RANDOM:
 		sys_rand_get(tx_packet + 1, sizeof(tx_packet) - 5);
 		break;
 	case TRANSMIT_PATTERN_11001100:
-		tx_packet[1] = 0xCC;
+		tx_packet[data_byte_idx] = 0xCC;
 		break;
 	case TRANSMIT_PATTERN_11110000:
-		tx_packet[1] = 0xF0;
+		tx_packet[data_byte_idx] = 0xF0;
 		break;
 	case TRANSMIT_PATTERN_11111111:
-		tx_packet[1] = 0xFF;
+		tx_packet[data_byte_idx] = 0xFF;
 		break;
 	default:
 		/* Do nothing. */
