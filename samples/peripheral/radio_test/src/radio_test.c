@@ -17,6 +17,8 @@
 #include <hal/nrf_vreqctrl.h>
 #endif /* NRF53_SERIES */
 
+#include <hal/nrf_power.h>
+
 #include <nrfx_timer.h>
 #include <zephyr/kernel.h>
 #include <zephyr/random/random.h>
@@ -1160,7 +1162,7 @@ void radio_handler(const void *context)
 		#endif
 		rx_pckts_content_stats[rx_packet[data_byte_idx]]++;
 
-		if (rx_packet_cnt % 250 == 0) {
+		if (rx_packet_cnt % 10000 == 0) {
 			printk("Received %u packets\n", rx_packet_cnt);
 			print_rx_stats();
 		}
@@ -1202,6 +1204,8 @@ int radio_test_init(struct radio_test_config *config)
 		printk("Failed to allocate gppi channel.\n");
 		return -EFAULT;
 	}
+
+	nrf_power_task_trigger(NRF_POWER, NRF_POWER_TASK_CONSTLAT);
 
 	rx_timeout_cb = &config->params.rx.cb;
 
