@@ -499,6 +499,7 @@ static void radio_config(nrf_radio_mode_t mode, enum transmit_pattern pattern)
 		nrf_radio_base0_set(NRF_RADIO, 0xCCCCCCCC);
 		break;
 
+	case TRANSMIT_PATTERN_11111111:
 	case TRANSMIT_PATTERN_11110000:
 		nrf_radio_prefix0_set(NRF_RADIO, 0x6A);
 		nrf_radio_base0_set(NRF_RADIO, 0x58FE811B);
@@ -677,6 +678,9 @@ static void generate_modulated_rf_packet(uint8_t mode,
 		break;
 	case TRANSMIT_PATTERN_11110000:
 		tx_packet[1] = 0xF0;
+		break;
+	case TRANSMIT_PATTERN_11111111:
+		tx_packet[1] = 0xFF;
 		break;
 	default:
 		/* Do nothing. */

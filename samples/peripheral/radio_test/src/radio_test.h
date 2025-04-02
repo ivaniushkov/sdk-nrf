@@ -46,6 +46,9 @@ enum transmit_pattern {
 
 	/** Pattern 11001100(CC). */
 	TRANSMIT_PATTERN_11001100,
+
+	/** Pattern 11111111(FF). */
+	TRANSMIT_PATTERN_11111111,
 };
 
 /**@brief Radio test mode. */

@@ -566,6 +566,12 @@ static int cmd_print(const struct shell *shell, size_t argc, char **argv)
 			    STRINGIFY(TRANSMIT_PATTERN_11001100));
 		break;
 
+	case TRANSMIT_PATTERN_11111111:
+		shell_print(shell,
+			    "Transmission pattern: %s",
+			    STRINGIFY(TRANSMIT_PATTERN_11111111));
+		break;
+
 	default:
 		shell_print(shell,
 			    "Transmission pattern unknown: %d",
@@ -1072,6 +1078,17 @@ static int cmd_pattern_11110000(const struct shell *shell, size_t argc,
 	return 0;
 }
 
+static int cmd_pattern_11111111(const struct shell *shell, size_t argc,
+				char **argv)
+{
+	config.tx_pattern = TRANSMIT_PATTERN_11111111;
+	shell_print(shell,
+		    "Transmission pattern: %s",
+		    STRINGIFY(TRANSMIT_PATTERN_11111111));
+
+	return 0;
+}
+
 static int cmd_pattern_11001100(const struct shell *shell, size_t argc,
 				char **argv)
 {
@@ -1363,6 +1380,9 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_transmit_pattern,
 	SHELL_CMD(pattern_11110000, NULL,
 		  "Set the transmission pattern to 11110000.",
 		  cmd_pattern_11110000),
+	SHELL_CMD(pattern_11111111, NULL,
+		  "Set the transmission pattern to 11111111.",
+		  cmd_pattern_11111111),
 	SHELL_CMD(pattern_11001100, NULL,
 		  "Set the transmission pattern to 10101010.",
 		  cmd_pattern_11001100),
