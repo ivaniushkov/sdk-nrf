@@ -525,7 +525,7 @@ static void radio_config(nrf_radio_mode_t mode, enum transmit_pattern pattern)
 	packet_conf.maxlen = (sizeof(tx_packet) - 1);
 	packet_conf.statlen = 0;
 	packet_conf.balen = 4;
-	packet_conf.big_endian = true;
+	packet_conf.big_endian = false;
 	packet_conf.whiteen = true;
 
 	switch (mode) {
