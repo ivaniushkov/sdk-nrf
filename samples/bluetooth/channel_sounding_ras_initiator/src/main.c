@@ -24,7 +24,7 @@
 #include <dk_buttons_and_leds.h>
 
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(app_main, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(app_main, LOG_LEVEL_DBG);
 
 #define CON_STATUS_LED DK_LED1
 
