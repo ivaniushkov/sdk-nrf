@@ -2238,6 +2238,19 @@ The issues in this section are related to the :ref:`nrf_desktop` application.
 
 .. rst-class:: v3-1-1 v3-1-0
 
+NCSDK-35650: Possible problems with sending HID input reports over Bluetooth LE after reconnection
+  Bluetooth stack might leak ATT TX buffers during disconnection if an application delays ATT sent callback until data transmission is done by Bluetooth LE controller (:kconfig:option:`CONFIG_BT_ATT_SENT_CB_AFTER_TX`).
+  Enabling the feature introduces an additional network buffer reference with the :c:func:`net_buf_ref` function.
+  This extends the lifetime of the network buffer representation until data transmission is confirmed by an ACK from the remote.
+  The reference is removed with the :c:func:`net_buf_unref` function when the TX callback passed to the :c:func:`bt_l2cap_send_pdu` function is called.
+  The TX callback might not be called for data sent over Bluetooth LE during the link disconnection.
+  This leads to missing net buffer reference removal.
+  Eventually, the buffers cannot be reused after Bluetooth LE reconnection.
+
+  **Workaround:** Apply the fix from `sdk-zephyr PR #3323`_.
+
+.. rst-class:: v3-1-1 v3-1-0
+
 NCSDK-34743: System state indication LED does not work on nRF54L15 DK
   The system state indication LED is kept turned off, because the PWM hardware peripheral attempts to drive the LED instead of GPIO.
   On the nRF54L05, nRF54L10 and nRF54L15 SoCs, you can only use the **GPIO1** port for PWM hardware peripheral output.
@@ -3338,6 +3351,16 @@ The issues in this section are related to :ref:`matter_samples`.
 
 .. rst-class:: v3-1-1 v3-1-0
 
+KRKNWK-20915: The :ref:`matter_lock_sample` sample does not work with the nRF54L Series and Nordic UART Service (NUS)
+  Using the Nordic UART Service (NUS) with the :ref:`matter_lock_sample` sample on the nRF54L Series devices results in a crash.
+  The root cause is that the NUS requires increased BT RX stack size for the nRF54L Series devices.
+
+  **Affected platforms:** nRF54L15, nRF54L10, nRF54LM20
+
+  **Workaround:** Set the :kconfig:option:`CONFIG_BT_RX_STACK_SIZE` Kconfig option to ``2560`` in the sample's :file:`prj.conf` file.
+
+.. rst-class:: v3-1-1 v3-1-0
+
 KRKNWK-20691: The :ref:`matter_lock_sample` sample does not update LED state on auto-relock
   The sample does not update the LED state to on after auto-relock timeout.
   The attribute value after auto-relock timeout is correct (locked), but the sample does not handle this change correctly, so the state of LED visualizing the lock state is wrong.
@@ -4318,10 +4341,10 @@ NCSDK-11432: DFU: Erasing secondary slot returns error response
 .. rst-class:: v1-7-1 v1-7-0 v1-6-1 v1-6-0 v1-5-2 v1-5-1 v1-5-0 v1-4-2 v1-4-1 v1-4-0
 
 NCSDK-6238: Socket API calls might hang when using Download client
-  When using the :ref:`lib_download_client` library with HTTP (without TLS), the application might not process incoming fragments fast enough, which can starve the :ref:`nrfxlib:nrf_modem` buffers and make calls to the Modem library hang.
-  Samples and applications that are affected include those that use the :ref:`lib_download_client` library to download files through HTTP, or those that use :ref:`lib_fota_download` with modem updates enabled.
+  When using the Download client library with HTTP (without TLS), the application might not process incoming fragments fast enough, which can starve the :ref:`nrfxlib:nrf_modem` buffers and make calls to the Modem library hang.
+  Samples and applications that are affected include those that use the Download client library to download files through HTTP, or those that use :ref:`lib_fota_download` with modem updates enabled.
 
-  **Workaround:** Set :kconfig:option:`CONFIG_DOWNLOAD_CLIENT_RANGE_REQUESTS` with the :ref:`lib_download_client` library.
+  **Workaround:** Set ``CONFIG_DOWNLOAD_CLIENT_RANGE_REQUESTS`` with the Download client library.
 
 .. rst-class:: v1-1-0
 
@@ -4333,7 +4356,7 @@ Jobs not received after reset
 .. rst-class:: v2-6-4 v2-6-3 v2-6-2 v2-6-1 v2-6-0 v2-5-3 v2-5-2 v2-5-1 v2-5-0
 
 NCSDK-24305: fota_download library sends FOTA_DOWNLOAD_EVT_FINISHED when unable to connect
-  The :ref:`lib_download_client` library do not resume a download if the device cannot connect to a target server.
+  The Download client library do not resume a download if the device cannot connect to a target server.
   This causes the :ref:`lib_fota_download` library to incorrectly assume that the download has completed.
 
   **Workaround:** Set the :kconfig:option:`CONFIG_FOTA_SOCKET_RETRIES` Kconfig option to ``0``.
@@ -4478,7 +4501,7 @@ NCSDK-29460: Encryption: Build error for default configuration on the ``nrf52840
 
   **Affected platforms:** nRF52840
 
-  **Workaround:** Switch the signature algorithm to RSA or change the crypto library to tinycrypt.
+  **Workaround:** Switch the signature algorithm to RSA or change the crypto library to TinyCrypt.
 
 .. rst-class:: v2-9-0-nRF54H20-1 v2-9-2 v2-9-1 v2-9-0 v2-8-0
 

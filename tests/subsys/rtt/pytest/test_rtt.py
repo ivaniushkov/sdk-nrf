@@ -7,8 +7,8 @@
 import logging
 import re
 import subprocess
-from pathlib import Path
 import time
+from pathlib import Path
 
 import psutil
 from twister_harness import DeviceAdapter
@@ -68,6 +68,12 @@ def test_rtt_logging(dut: DeviceAdapter):
         'nrf54lv10dk@0.2.0/nrf54lv10a/cpuapp': {
             'device': 'NRF54LV10A_M33',
         },
+        'nrf54lv10dk@0.7.0/nrf54lv10a/cpuapp/ns': {
+            'device': 'NRF54LV10A_M33',
+        },
+        'nrf54lv10dk@0.7.0/nrf54lv10a/cpuapp': {
+            'device': 'NRF54LV10A_M33',
+        },
     }
 
     log_filename = f"{BUILD_DIR}/log_rtt.txt"
@@ -83,7 +89,7 @@ def test_rtt_logging(dut: DeviceAdapter):
     # use JLinkRTTLoggerExe to collect logs
     cmd = f"JLinkRTTLoggerExe -USB {SEGGER_ID}"
     cmd += f" -device {SWD_CONFIG[PLATFORM]['device']}"
-    cmd += f" -If SWD -Speed 1000 -RTTChannel 0"
+    cmd += " -If SWD -Speed 1000 -RTTChannel 0"
     cmd += f" {log_filename}"
 
     try:

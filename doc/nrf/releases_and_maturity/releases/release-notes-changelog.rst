@@ -128,7 +128,7 @@ Security
 
 * Added:
 
-  * CRACEN and nrf_oberon driver support for nRF54LM20.
+  * CRACEN and nrf_oberon driver support for nRF54LM20 and nRF54LV10.
     For the list of supported features and limitations, see the :ref:`ug_crypto_supported_features` page.
 
   * Support for disabling Internal Trusted Storage (ITS) on nRF54L series devices when using
@@ -137,13 +137,14 @@ Security
 
   * Support for AES in counter mode using CRACEN for the :zephyr:board:`nrf54lm20dk`.
 
+* Updated:
+
+  * The :ref:`security_index` page with a table that lists the versions of security components implemented in the |NCS|.
+  * The :ref:`secure_storage_in_ncs` page with updated information about the secure storage configuration in the |NCS|.
+    Also renamed the page from "Trusted storage in the |NCS|."
+
 Protocols
 =========
-
-|no_changes_yet_note|
-
-Amazon Sidewalk
----------------
 
 |no_changes_yet_note|
 
@@ -158,7 +159,7 @@ Bluetooth Mesh
 * Updated the NLC profile configuration system:
 
   * Introduced individual profile configuration options for better user control.
-  * Deprecated the ``CONFIG_BT_MESH_NLC_PERF_CONF`` and ``CONFIG_BT_MESH_NLC_PERF_DEFAULT`` Kconfig options.
+  * Deprecated the :kconfig:option:`CONFIG_BT_MESH_NLC_PERF_CONF` and :kconfig:option:`CONFIG_BT_MESH_NLC_PERF_DEFAULT` Kconfig options.
     Existing configurations continue to work but you should migrate to individual profile options.
 
 DECT NR+
@@ -179,12 +180,16 @@ Gazell
 Matter
 ------
 
+* Added documentation for leveraging Matter Compliant Platform certification through the Derived Matter Product (DMP) process.
+  See :ref:`ug_matter_platform_and_dmp`.
 * Updated to using the :kconfig:option:`CONFIG_PICOLIBC` Kconfig option as the C library instead of :kconfig:option:`CONFIG_NEWLIB_LIBC`, in compliance with Zephyr requirements.
+* Removed the ``CONFIG_CHIP_SPI_NOR`` and ``CONFIG_CHIP_QSPI_NOR`` Kconfig options.
 
 Matter fork
 +++++++++++
 
-|no_changes_yet_note|
+* Removed dependencies on Nordic DK-specific configurations in Matter configurations.
+  See the `Migration guide for nRF Connect SDK v3.2.0`_ for more information.
 
 nRF IEEE 802.15.4 radio driver
 ------------------------------
@@ -232,16 +237,29 @@ nRF5340 Audio
 
 * Added:
 
+  * A way to store servers in RAM on the unicast client (gateway) side.
+    The storage does a compare on server address to match multiple servers in a unicast group.
+    This means that if another device appears with the same address, it will be treated as the same server.
+  * Experimental support for stereo in :ref:`unicast server application<nrf53_audio_unicast_server_app_configuration_stereo>`.
   * The :ref:`Audio application API documentation <audio_api>` page.
   * The :ref:`config_audio_app_options` page.
+  * The API documentation in the header files listed on the :ref:`audio_api` page.
+  * Ability to connect by address as a unicast client.
 
 * Updated:
 
-  * The power measurements to be disabled by default in ``debug`` builds.
-    To enable power measurements, set the :kconfig:option:`CONFIG_NRF5340_AUDIO_POWER_MEASUREMENT` Kconfig option to ``y`` in the :file:`applications/nrf5340_audio/prj.conf` file.
+  * The unicast client (gateway) application has been rewritten to support N channels.
+  * The unicast client (gateway) application now checks if a server has a resolvable address.
+    If this has not been resolved, the discovery process will start in the identity resolved callback.
+  * The power measurements to be disabled by default in the default debug versions of the applications.
+    To enable power measurements, see :ref:`nrf53_audio_app_configuration_power_measurements`.
   * The audio application targeting the :zephyr:board:`nrf5340dk` to use pins **P1.5** to **P1.9** for the I2S interface instead of **P0.13** to **P0.17**.
     This change was made to avoid conflicts with the onboard peripherals on the nRF5340 DK.
+  * The documentation pages with information about the :ref:`SD card playback module <nrf53_audio_app_overview_architecture_sd_card_playback>` and :ref:`how to enable it <nrf53_audio_app_configuration_sd_card_playback>`.
   * The API documentation in the header files listed on the :ref:`audio_api` page.
+
+* Removed the LC3 QDID from the :ref:`nrf53_audio_feature_support` page.
+  The QDID is now listed in the `nRF5340 Bluetooth DNs and QDIDs Compatibility Matrix`_.
 
 nRF Desktop
 -----------
@@ -269,6 +287,18 @@ nRF Desktop
       The application did not switch to the ``bare`` board variant to keep backwards compatibility.
     * The :ref:`nrf_desktop_hid_state` to allow for delayed registration of HID report providers.
       Before the change was introduced, subscribing to a HID input report before the respective provider was registered triggered an assertion failure.
+    * HID transports (:ref:`nrf_desktop_hids`, :ref:`nrf_desktop_usb_state`) to use the early :c:struct:`hid_report_event` subscription (:c:macro:`APP_EVENT_SUBSCRIBE_EARLY`).
+      This update improves the reception speed of HID input reports in HID transports.
+    * The :ref:`nrf_desktop_motion` implementations to align internal state names for consistency.
+    * The :ref:`nrf_desktop_motion` implementation that generates simulated motion.
+      Improved the Zephyr shell (:kconfig:option:`CONFIG_SHELL`) integration to prevent potential race conditions related to using preemptive execution context for shell commands.
+    * The :c:struct:`motion_event` to include information if the sensor is still active or goes to idle state waiting for user activity (:c:member:`motion_event.active`).
+      The newly added field is filled by all :ref:`nrf_desktop_motion` implementations.
+      The :ref:`nrf_desktop_hid_provider_mouse` uses the newly added field to improve the synchronization of motion sensor sampling.
+      After the motion sensor sampling is triggered, the provider waits for the result before submitting a subsequent HID mouse input report.
+    * The :ref:`nrf_desktop_hid_state_pm` to skip submitting the :c:struct:`keep_alive_event` if the :c:enum:`POWER_MANAGER_LEVEL_ALIVE` power level is enforced by any application module through the :c:struct:`power_manager_restrict_event`.
+      This is done to improve performance.
+    * The documentation of the :ref:`nrf_desktop_hid_state` and default HID report providers to simplify getting started with updating HID input reports used by the application or introducing support for a new HID input report.
 
 nRF Machine Learning (Edge Impulse)
 -----------------------------------
@@ -292,11 +322,6 @@ Samples
 =======
 
 This section provides detailed lists of changes by :ref:`sample <samples>`.
-
-Amazon Sidewalk samples
------------------------
-
-|no_changes_yet_note|
 
 Bluetooth samples
 -----------------
@@ -336,13 +361,27 @@ Bluetooth samples
 Bluetooth Mesh samples
 ----------------------
 
+* Added external flash settings support for the ``nrf52840dk/nrf52840`` board targets in all Bluetooth Mesh samples.
+
 * :ref:`ble_mesh_dfu_distributor` sample:
 
-  * Added support for external flash memory for the ``nrf52840dk/nrf52840`` as the secondary partition for the DFU process.
+   * Added:
+
+    * Support for external flash memory for the ``nrf52840dk/nrf52840`` and the ``nrf54l15dk/nrf54l15/cpuapp`` as the secondary partition for the DFU process.
+    * Support for external flash settings for the ``nrf52840dk/nrf52840`` board targets.
+
+  * Updated the :makevar:`FILE_SUFFIX` make variable to use more descriptive suffixes for external flash configurations.
+    The new suffixes are ``_dfu_ext_flash`` for external flash DFU storage and ``_ext_flash_settings`` for external flash settings storage.
 
 * :ref:`ble_mesh_dfu_target` sample:
 
-  * Added support for external flash memory for the ``nrf52840dk/nrf52840`` as the secondary partition for the DFU process.
+  * Added:
+
+    * Support for external flash memory for the ``nrf52840dk/nrf52840`` and the ``nrf54l15dk/nrf54l15/cpuapp`` as the secondary partition for the DFU process.
+    * Support for external flash settings for the ``nrf52840dk/nrf52840`` board targets.
+
+  * Updated the :makevar:`FILE_SUFFIX` make variable to use more descriptive suffixes for external flash configurations.
+    The new suffixes are ``_dfu_ext_flash`` for external flash DFU storage and ``_ext_flash_settings`` for external flash settings storage.
 
 * :ref:`bluetooth_mesh_sensor_client` sample:
 
@@ -395,6 +434,7 @@ Cellular samples
   * The :ref:`nrf_cloud_coap_cell_location` sample to demonstrate how to use the `nRF Cloud CoAP API`_ for nRF Cloud's cellular location service.
   * The :ref:`nrf_cloud_coap_fota_sample` sample to demonstrate how to use the `nRF Cloud CoAP API`_ for FOTA updates.
   * The :ref:`nrf_cloud_coap_device_message` sample to demonstrate how to use the `nRF Cloud CoAP API`_ for device messages.
+  * The :ref:`nrf_cloud_mqtt_device_message` sample to demonstrate how to use the `nRF Cloud MQTT API`_ for device messages.
 
 * :ref:`nrf_cloud_rest_cell_location` sample:
 
@@ -422,7 +462,10 @@ Cellular samples
 Cryptography samples
 --------------------
 
-* Added the :ref:`crypto_kmu_usage_nrf54l` sample.
+* Added:
+
+  * Support for ``nrf54lv10dk/nrf54lv10a/cpuapp`` and ``nrf54lv10dk/nrf54lv10a/cpuapp/ns`` board targets to all samples (except :ref:`crypto_test`).
+  * The :ref:`crypto_kmu_usage_nrf54l` sample.
 
 * :ref:`crypto_aes_ctr` sample:
 
@@ -473,11 +516,16 @@ Matter samples
 
   * The :ref:`matter_temperature_sensor_sample` sample that demonstrates how to implement and test a Matter temperature sensor device.
   * The :ref:`matter_contact_sensor_sample` sample that demonstrates how to implement and test a Matter contact sensor device.
+  * The ``matter_custom_board`` toggle paragraph in the Matter advanced configuration section of all Matter samples that demonstrates how add and configure a custom board.
 
-* Updated all Matter over Wi-Fi samples and applications to store a portion of the application code related to the nRF70 Series Wi-Fi firmware in the external flash memory by default.
-  This change breaks the DFU between the previous |NCS| versions and the |NCS| v3.2.0.
-  To fix this, you need to disable storing the Wi-Fi firmware patch in external memory.
-  See the :ref:`migration guide <migration_3.2_required>` for more information.
+* Updated:
+
+  * All Matter over Wi-Fi samples and applications to store a portion of the application code related to the nRF70 Series Wi-Fi firmware in the external flash memory by default.
+    This change breaks the DFU between the previous |NCS| versions and the |NCS| v3.2.0.
+    To fix this, you need to disable storing the Wi-Fi firmware patch in external memory.
+    See the :ref:`migration guide <migration_3.2_required>` for more information.
+  * All Matter samples that support low-power mode to use the :ref:`lib_ram_pwrdn` feature with the nRF54LM20 DK.
+    This change resulted in decreasing the sleep current consumption by more than two uA.
 
 * :ref:`matter_lock_sample` sample:
 
@@ -540,7 +588,9 @@ SUIT samples
 Trusted Firmware-M (TF-M) samples
 ---------------------------------
 
-|no_changes_yet_note|
+* :ref:`tfm_hello_world` sample:
+
+  * Added support for the ``nrf54lv10dk/nrf54lv10a/cpuapp/ns`` board target.
 
 Thread samples
 --------------
@@ -561,6 +611,8 @@ Wi-Fi samples
 
 Other samples
 -------------
+
+* Added the :ref:`secondary_boot_sample` sample that demonstrates how to build and boot a secondary application image on the nRF54H20 DK.
 
 * :ref:`nrf_profiler_sample` sample:
 
@@ -644,6 +696,7 @@ Modem libraries
     * Support for new modem events :c:enumerator:`LTE_LC_MODEM_EVT_RF_CAL_NOT_DONE`, :c:enumerator:`LTE_LC_MODEM_EVT_INVALID_BAND_CONF`, and :c:enumerator:`LTE_LC_MODEM_EVT_DETECTED_COUNTRY`.
     * Description of new features supported by mfw_nrf91x1 and mfw_nrf9151-ntn in receive only functional mode.
     * Sending of the ``LTE_LC_EVT_PSM_UPDATE`` event with ``tau`` and ``active_time`` set to ``-1`` when registration status is ``LTE_LC_NW_REG_NOT_REGISTERED``.
+    * New registration statuses and functional modes for the ``mfw_nrf9151-ntn`` modem firmware.
 
   * Updated:
 
@@ -651,6 +704,18 @@ Modem libraries
     * Replaced modem events ``LTE_LC_MODEM_EVT_CE_LEVEL_0``, ``LTE_LC_MODEM_EVT_CE_LEVEL_1``, ``LTE_LC_MODEM_EVT_CE_LEVEL_2`` and ``LTE_LC_MODEM_EVT_CE_LEVEL_3`` with the :c:enumerator:`LTE_LC_MODEM_EVT_CE_LEVEL` modem event.
     * The order of the ``LTE_LC_MODEM_EVT_SEARCH_DONE`` modem event, and registration and cell related events.
       See the :ref:`migration guide <migration_3.2_required>` for more information.
+
+* :ref:`nrf_modem_lib_readme` library:
+
+  * Added the :c:func:`nrf_modem_lib_trace_peek_at` function to the :c:struct:`nrf_modem_lib_trace_backend` interface to peek trace data at a byte offset without consuming it.
+    Support for this API has been added to the flash trace backend.
+
+* :ref:`pdn_readme` library:
+
+  * Fixed:
+
+    * An issue where wrong APN rate control event was sent.
+    * An issue where a malformed +CGEV notification was not handled correctly.
 
 Multiprotocol Service Layer libraries
 -------------------------------------
@@ -670,6 +735,9 @@ Libraries for networking
   * :ref:`lib_aws_fota`
   * :ref:`lib_fota_download`
   * :ref:`lib_ftp_client`
+
+* Removed the Download client library.
+  Use the :ref:`lib_downloader` library instead.
 
 * :ref:`lib_nrf_provisioning` library:
 
@@ -700,6 +768,16 @@ Libraries for networking
 
   * Updated by adding a missing CONFIG prefix.
 
+* :ref:`lib_nrf_cloud` library:
+
+  * Added the :c:func:`nrf_cloud_obj_location_request_create_timestamped` function to make location requests for past cellular or Wi-Fi scans.
+  * Updated by refactoring the folder structure of the library to separate the different backend implementations.
+
+* :ref:`lib_downloader` library:
+
+  * Fixed an issue where HTTP download would hang if the application had not set the socket receive timeout and data flow from the server stopped.
+    The HTTP transport now sets the socket receive timeout to 30 seconds by default.
+
 Libraries for NFC
 -----------------
 
@@ -716,6 +794,10 @@ Other libraries
 * :ref:`nrf_profiler` library:
 
   * Updated the documentation by separating out the :ref:`nrf_profiler_script` documentation.
+
+* :ref:`lib_ram_pwrdn` library:
+
+  * Added support for the nRF54LM20A SoC.
 
 Shell libraries
 ---------------
@@ -760,6 +842,12 @@ Memfault integration
   * The ``CONFIG_MEMFAULT_DEVICE_INFO_CUSTOM`` Kconfig option has been renamed to :kconfig:option:`CONFIG_MEMFAULT_NCS_DEVICE_INFO_CUSTOM`.
   * The ``CONFIG_MEMFAULT_DEVICE_INFO_BUILTIN`` Kconfig option has been renamed to :kconfig:option:`CONFIG_MEMFAULT_NCS_DEVICE_INFO_BUILTIN`.
 
+* Added a metric tracking the unused stack space of the Bluetooth Long workqueue thread, when the :kconfig:option:`CONFIG_MEMFAULT_NCS_BT_METRICS` Kconfig option is enabled.
+  The new metric is named ``ncs_bt_lw_wq_unused_stack``.
+
+* Removed a metric for the tracking Bluetooth TX thread unused stack ``ncs_bt_tx_unused_stack``.
+  The thread in question was removed in Zephyr v3.7.0.
+
 AVSystem integration
 --------------------
 
@@ -789,7 +877,11 @@ The code for integrating MCUboot into |NCS| is located in the :file:`ncs/nrf/mod
 
 The following list summarizes both the main changes inherited from upstream MCUboot and the main changes applied to the |NCS| specific additions:
 
-|no_changes_yet_note|
+* Added support for S2RAM resume on nRF54H20 devices.
+  MCUboot acts as the S2RAM resume mediator and redirects execution to the application's native resume routine.
+
+* Updated KMU mapping to ``BL_PUBKEY`` when MCUboot is used as the immutable bootloader for nRF54L Series devices.
+  You can restore the previous KMU mapping (``UROT_PUBKEY``) with the :kconfig:option:`SB_CONFIG_MCUBOOT_SIGNATURE_KMU_UROT_MAPPING` Kconfig option.
 
 Zephyr
 ======
@@ -834,6 +926,7 @@ Trusted Firmware-M
   * Documentation to clarify the support for TF-M on devices emulated using the nRF54L15 DK.
     nRF54L05 does not support TF-M.
     nRF54L10 supports TF-M experimentally.
+
 
 Documentation
 =============

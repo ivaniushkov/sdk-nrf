@@ -70,7 +70,8 @@
 .. _`MCUboot Kconfig option documentation`: https://github.com/nrfconnect/sdk-nrf/blob/main/modules/mcuboot/boot/zephyr/Kconfig#L27C11-L27C12
 
 .. _`sdk-mbedtls`: https://github.com/nrfconnect/sdk-mbedtls
-.. _`Arm Mbed TLS project`: https://github.com/ARMmbed/mbedtls
+.. _`official Mbed TLS releases`: https://github.com/Mbed-TLS/mbedtls/releases
+.. _`Arm Mbed TLS project`: https://github.com/Mbed-TLS/mbedtls
 
 .. _`nrfconnect GitHub organization`: https://github.com/nrfconnect
 .. _`sdk-nrf`: https://github.com/nrfconnect/sdk-nrf
@@ -87,6 +88,8 @@
 .. _`sdk-nrf PR #14474`: https://github.com/nrfconnect/sdk-nrf/pull/14474
 .. _`sdk-nrf PR #16242`: https://github.com/nrfconnect/sdk-nrf/pull/16242
 .. _`sdk-nrf PR #20177`: https://github.com/nrfconnect/sdk-nrf/pull/20177
+
+.. _`sdk-zephyr PR #3323`: https://github.com/nrfconnect/sdk-zephyr/pull/3323
 
 .. _`sdk-nrfxlib`: https://github.com/nrfconnect/sdk-nrfxlib
 
@@ -160,6 +163,7 @@
 .. _`Matter SDK tagged as v1.0.0`: https://github.com/project-chip/connectedhomeip/releases/tag/v1.0.0
 .. _`Testing with Apple Devices`: https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/darwin.md
 .. _`chip-tool`: https://docs.nordicsemi.com/bundle/ncs-latest/page/matter/chip_tool_guide.html
+.. _`Matter nRF Connect SDK Platform Certificate`: https://csa-iot.org/csa_product/nrf-connect-sdk/
 
 .. _`CoreMark GitHub`: https://github.com/eembc/coremark
 
@@ -1167,8 +1171,6 @@
 .. _`Ranging Profile Specification`: https://files.bluetooth.com/download/rap_v1-0/
 .. _`Ranging Service Specification`: https://files.bluetooth.com/download/ras_v1-0/
 
-.. _`Bluetooth SIG company identifiers`: https://www.bluetooth.com/specifications/assigned-numbers/company-identifiers/
-
 .. _`Bluetooth SIG's Qualification Process`: https://www.bluetooth.com/develop-with-bluetooth/qualification-listing/
 .. _`Launch Studio`: https://qualification.bluetooth.com/
 .. _`Profile Tuning Suite (PTS)`: https://www.bluetooth.com/develop-with-bluetooth/qualification-listing/qualification-test-tools/profile-tuning-suite/
@@ -1196,7 +1198,10 @@
 .. _`Bluetooth Mesh FAQ`: https://www.bluetooth.com/learn-about-bluetooth/bluetooth-technology/topology-options/le-mesh/mesh-faq/
 .. _`Bluetooth Mesh study guide`: https://www.bluetooth.com/bluetooth-resources/bluetooth-mesh-developer-study-guide/
 .. _`Bluetooth Mesh introduction blog`: https://www.bluetooth.com/blog/introducing-bluetooth-mesh-networking
-.. _`Bluetooth SIG's Assigned Numbers`: https://www.bluetooth.com/specifications/assigned-numbers/
+
+.. _`Bluetooth SIG company identifiers`: https://www.bluetooth.com/specifications/assigned-numbers/company-identifiers/
+.. _`Bluetooth SIG's Assigned Numbers`:
+.. _`Bluetooth Assigned Numbers`: https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/Assigned_Numbers.pdf
 
 .. _`Auracast™`: https://www.bluetooth.com/auracast/how-it-works/
 .. _`Basic Audio Profile specification`: https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/16212-BAP-html5/out/en/index-en.html#UUID-c9d31763-9ede-2270-6b9c-c042ae684cc3
@@ -1893,6 +1898,8 @@
 .. _`IEEE 802.15.4-2015 standard`: https://standards.ieee.org/ieee/802.15.4/5788/
 
 .. _`NX3215SA-32.768K-STD-MUA-9 datasheet`: https://www.ndk.com/en/products/upload/lineup/pdf/NDKX01-00001_en.pdf
+
+.. _`official TF-M releases`: https://trustedfirmware-m.readthedocs.io/en/latest/releases/index.html
 
 .. ### Temp: nRF54H and nRF54L related links, repositories, and documents
 

@@ -83,6 +83,9 @@ AT_MONITOR(pdn_cgev, "+CGEV", on_cgev);
 AT_MONITOR(pdn_cnec_esm, "+CNEC_ESM", on_cnec_esm);
 #endif
 
+/* Expect enough added heap for the default PDN context */
+BUILD_ASSERT(sizeof(struct pdn) <= CONFIG_HEAP_MEM_POOL_ADD_SIZE_PDN);
+
 static struct pdn *pdn_find(int cid)
 {
 	struct pdn *pdn;
@@ -203,7 +206,8 @@ static void parse_cgev(const char *notif)
 		}
 
 		SYS_SLIST_FOR_EACH_CONTAINER(&pdn_contexts, pdn, node) {
-			if (pdn->callback && (pdn->context_id == cid || cid == CID_UNASSIGNED)) {
+			if (pdn->callback &&
+			    (pdn->context_id == cid || map[i].event == PDN_EVENT_NETWORK_DETACH)) {
 				pdn->callback(pdn->context_id, map[i].event, 0);
 			}
 		}
@@ -237,8 +241,8 @@ static void parse_cgev_apn_rate_ctrl(const char *notif)
 	SYS_SLIST_FOR_EACH_CONTAINER(&pdn_contexts, pdn, node) {
 		if (pdn->callback && pdn->context_id == cid) {
 			pdn->callback(pdn->context_id,
-				      apn_rate_ctrl_status ? PDN_EVENT_APN_RATE_CONTROL_ON
-							   : PDN_EVENT_APN_RATE_CONTROL_OFF,
+				      apn_rate_ctrl_status == 1 ? PDN_EVENT_APN_RATE_CONTROL_ON
+								: PDN_EVENT_APN_RATE_CONTROL_OFF,
 				      0);
 		}
 	}

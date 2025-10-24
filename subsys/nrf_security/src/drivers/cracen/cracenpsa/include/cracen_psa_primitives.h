@@ -44,6 +44,14 @@
 #define CRACEN_MAX_CHACHA20_KEY_SIZE (32u)
 
 /*
+ * There is a HW limitation for nRF54LM20A and nRF54LV10A:
+ * a maximum of 1 MB of plaintext or ciphertext is supported.
+ */
+#if defined(CONFIG_SOC_NRF54LM20A) || defined(CONFIG_SOC_NRF54LV10A)
+#define CRACEN_MAX_CCM_DATA_SIZE (65536U * SX_BLKCIPHER_AES_BLK_SZ)
+#endif /* CONFIG_SOC_NRF54LM20A || CONFIG_SOC_NRF54LV10A */
+
+/*
  * There are two key types supported for ciphers, CHACHA20 and AES,
  * and they both have a max key size of 32.
  */
@@ -240,6 +248,7 @@ struct cracen_key_derivation_operation {
 		cracen_hash_operation_t hash_op;
 	};
 	union {
+#if defined(PSA_NEED_CRACEN_HKDF)
 		struct {
 			uint8_t blk_counter;
 			uint8_t prk[SX_HASH_MAX_ENABLED_BLOCK_SIZE];
@@ -248,7 +257,8 @@ struct cracen_key_derivation_operation {
 			size_t info_length;
 			bool info_set;
 		} hkdf;
-
+#endif /* PSA_NEED_CRACEN_HKDF */
+#if defined(PSA_NEED_CRACEN_PBKDF2_HMAC)
 		struct {
 			uint64_t input_cost;
 			char password[SX_HASH_MAX_ENABLED_BLOCK_SIZE];
@@ -259,7 +269,8 @@ struct cracen_key_derivation_operation {
 			uint8_t uj[PSA_MAC_MAX_SIZE];
 			uint8_t tj[PSA_MAC_MAX_SIZE];
 		} pbkdf2;
-
+#endif /* PSA_NEED_CRACEN_PBKDF2_HMAC */
+#if defined(PSA_NEED_CRACEN_SP800_108_COUNTER_CMAC)
 		struct {
 			uint8_t key_buffer[CRACEN_MAX_AES_KEY_SIZE];
 			struct sxkeyref keyref;
@@ -275,11 +286,13 @@ struct cracen_key_derivation_operation {
 			uint32_t L;
 			uint8_t K_0[SX_BLKCIPHER_AES_BLK_SZ];
 		} cmac_ctr;
-
+#endif /* PSA_NEED_CRACEN_SP800_108_COUNTER_CMAC */
+#if defined(PSA_NEED_CRACEN_TLS12_ECJPAKE_TO_PMS)
 		struct {
 			uint8_t key[32];
 		} ecjpake_to_pms;
-
+#endif /* PSA_NEED_CRACEN_TLS12_ECJPAKE_TO_PMS */
+#if defined(PSA_NEED_CRACEN_TLS12_PRF) || defined(PSA_NEED_CRACEN_TLS12_PSK_TO_MS)
 		struct {
 			/* May contain secret, length of secret as uint16be, other secret
 			 * and other secret length as uint16be.
@@ -293,6 +306,7 @@ struct cracen_key_derivation_operation {
 			size_t counter;
 			uint8_t a[SX_HASH_MAX_ENABLED_BLOCK_SIZE];
 		} tls12;
+#endif /* PSA_NEED_CRACEN_TLS12_PRF || PSA_NEED_CRACEN_TLS12_PSK_TO_MS */
 	};
 };
 typedef struct cracen_key_derivation_operation cracen_key_derivation_operation_t;

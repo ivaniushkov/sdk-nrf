@@ -44,16 +44,14 @@ class SerialPort:
             logger.error(f"Opening '{self.port_name}' failed with error: {exc}!")
             raise exc
 
-    def close(
-        self,
-    ):
+    def close(self):
         """
         Close serial port
         """
         if self.serial_port:
-            logger.debug("Closing serial port connection")
+            logger.info("Closing serial port connection")
             self.serial_port.close()
-            logger.debug("Serial port connection closed")
+            logger.info("Serial port connection closed")
             self.serial_port = None
 
     def open(self) -> None:
@@ -61,7 +59,7 @@ class SerialPort:
         Open serial port
         """
         if not self.serial_port.is_open:
-            logger.debug(f"Opening: '{self}'")
+            logger.info(f"Opening: '{self}'")
             self.serial_port.open()
             self.serial_port.reset_input_buffer()
             self.serial_port.reset_output_buffer()
@@ -74,12 +72,12 @@ class SerialPort:
         """
         response: str = ""
         if self.serial_port.is_open is False:
-            raise IOError("Serial port is closed")
+            raise OSError("Serial port is closed")
 
         try:
             time.sleep(0.25)
             self.serial_port.write_timeout = self._timeout
-            logger.debug(f"[{self.serial_port.port}] Serial --> {message}")
+            logger.info(f"[{self.serial_port.port}] Serial --> {message}")
             line_termination: str = "\n" if add_line_termination else ""
             self.serial_port.write((message + line_termination).encode())
             if get_response:
@@ -90,7 +88,7 @@ class SerialPort:
                 while (self.serial_port.in_waiting > 0) and (time.time() - start < self._timeout):
                     time.sleep(0.1)
                     response += self.serial_port.read_all().decode()
-                logger.debug(f"Serial <-- {response}")
+                logger.info(f"Serial <-- {response}")
             return response
 
         except serial.SerialTimeoutException as exc:
@@ -103,3 +101,30 @@ class SerialPort:
             logger.error(f"Decoding error: {exc}")
 
         return response.rstrip("\n")
+
+    def read_data_until_matched(self, message_to_find: str) -> bool:
+        """
+        Read serial data until 'message_to_find' is found
+        or 'timeout' is reached
+        """
+        data: str = ""
+        start: float = time.perf_counter()
+        while time.perf_counter() - start < self._timeout:
+            try:
+                if self.serial_port.in_waiting > 0:
+                    data += self.serial_port.read_all().decode(errors="replace")
+                    logger.info(data)
+                    if message_to_find in data:
+                        return True
+                time.sleep(0.1)
+
+            except serial.SerialTimeoutException as exc:
+                logger.error(f"Serial port read timeout: {exc}")
+
+            except serial.SerialException as exc:
+                logger.error(f"Serial port read error: {exc}")
+
+            except UnicodeDecodeError as exc:
+                logger.error(f"Decoding error: {exc}")
+
+        return False

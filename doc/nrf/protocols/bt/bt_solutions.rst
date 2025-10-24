@@ -83,3 +83,7 @@ Distance
 
 Channel sounding is a feature in the Bluetooth specification that allows distance measurement between two devices.
 The measurement is based on round-trip timing (RTT) and phase-based ranging (PBR).
+The following samples can be used to evaluate the feature:
+
+* :ref:`channel_sounding_ras_reflector`
+* :ref:`channel_sounding_ras_initiator`

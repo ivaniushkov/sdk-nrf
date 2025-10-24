@@ -65,7 +65,7 @@ manifest:
     # https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/guides/modules.html
     - name: zephyr
       repo-path: sdk-zephyr
-      revision: bbfecc3539562c83c6116e7adaa7501c6d1d8d51
+      revision: 3a3b43700d20959a4084e2e28a6d6a10da98fcd8
       import:
         # In addition to the zephyr repository itself, NCS also
         # imports the contents of zephyr/west.yml at the above
@@ -108,7 +108,6 @@ manifest:
           - picolibc
           - segger
           - tf-m-tests
-          - tinycrypt
           - uoscore-uedhoc
           - zcbor
           - zscilib
@@ -128,7 +127,7 @@ manifest:
           compare-by-default: true
     - name: mcuboot
       repo-path: sdk-mcuboot
-      revision: 1c8a5953c5411bb1e453c3747a4d13ac0680ff14
+      revision: a8161d7dcccd9503c48678219dd535ebd24b7c3c
       path: bootloader/mcuboot
     - name: qcbor
       url: https://github.com/laurencelundblade/QCBOR
@@ -137,7 +136,7 @@ manifest:
     - name: mbedtls
       path: modules/crypto/mbedtls
       repo-path: sdk-mbedtls
-      revision: bcce3de6a2860991f54945738c0bc14d2c650ede
+      revision: 0bb7a19947ba9d5595a7de792d15f6ca2a5b1ea2
     - name: oberon-psa-crypto
       path: modules/crypto/oberon-psa-crypto
       repo-path: sdk-oberon-psa-crypto
@@ -145,11 +144,11 @@ manifest:
     - name: nrfxlib
       repo-path: sdk-nrfxlib
       path: nrfxlib
-      revision: 36ba54ade9f72909dff5fc1268eb59eb6e289f2d
+      revision: 1d88c4484f24820c7cad542916080f409db9257d
     - name: trusted-firmware-m
       repo-path: sdk-trusted-firmware-m
       path: modules/tee/tf-m/trusted-firmware-m
-      revision: b4dfb8e90f7a133a68fd6949bc24586af99a3e0c
+      revision: 2c9f9c6e20468ef9dcd433986adea2d3fc036b9d
     - name: psa-arch-tests
       repo-path: sdk-psa-arch-tests
       path: modules/tee/tf-m/psa-arch-tests
@@ -157,7 +156,7 @@ manifest:
     - name: matter
       repo-path: sdk-connectedhomeip
       path: modules/lib/matter
-      revision: 4031bf321f9eea476552639dd39d23c90b00d62a
+      revision: 48881b605a42d7b3e1db48a060be4ea7cdd8d65f
       west-commands: scripts/west/west-commands.yml
       submodules:
         - name: nlio
@@ -176,14 +175,14 @@ manifest:
     - name: nrf-802154
       repo-path: sdk-nrf-802154
       path: nrf-802154
-      revision: 0f7ea29d2ae899d52c3dd0ce2355dc4d4176b2b8
+      revision: d90e3bd46f5153fc3075843b3f2817fe3dc2104b
       groups:
         - nrf-802154
     - name: dragoon
       # Only for internal Nordic development
       repo-path: dragoon.git
       remote: dragoon
-      revision: 17f85a062d59bd6d8693fda3ba20fe5a458b4483
+      revision: 3c9491132b7e7af305c8f444f97eb7fba6da6510
       groups:
         - dragoon
     - name: cjson
@@ -197,7 +196,7 @@ manifest:
           compare-by-default: false
     - name: find-my
       repo-path: sdk-find-my
-      revision: 472d59ac2917ff6467c96eb418814a35f997037c
+      revision: 37fba14f446d6d4ced2fcbe8886f143499a3fd0d
       groups:
         - find-my
     - name: azure-sdk-for-c
@@ -212,7 +211,7 @@ manifest:
     - name: cirrus
       repo-path: sdk-mcu-drivers
       path: modules/hal/cirrus-logic
-      revision: 3873a08377d93a479105a75ac390d3bbcd31d690
+      revision: 1c837bcc27de9ccc06b020b9500e1547e559a1df
       userdata:
         ncs:
           upstream-url: https://github.com/CirrusLogic/mcu-drivers
@@ -225,7 +224,7 @@ manifest:
     - name: openthread
       repo-path: sdk-openthread
       path: modules/lib/openthread
-      revision: 63164bda951d94adf925b7f6fedb89981729cc12
+      revision: ncs-thread-reference-20250402
       userdata:
         ncs:
           upstream-url: https://github.com/openthread/openthread
@@ -246,7 +245,7 @@ manifest:
       remote: throwtheswitch
     - name: memfault-firmware-sdk
       path: modules/lib/memfault-firmware-sdk
-      revision: 1.30.0
+      revision: 1.30.2
       remote: memfault
     - name: bsim
       repo-path: bsim_west

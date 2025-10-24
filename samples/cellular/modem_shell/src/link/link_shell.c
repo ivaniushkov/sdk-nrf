@@ -5,11 +5,12 @@
  */
 
 #include <stdio.h>
+#include <unistd.h>
+#include <getopt.h>
 
 #include <zephyr/shell/shell.h>
 #include <zephyr/shell/shell_uart.h>
-#include <unistd.h>
-#include <getopt.h>
+#include <zephyr/sys/poweroff.h>
 
 #include <nrf_modem_at.h>
 #include <modem/nrf_modem_lib.h>
@@ -146,20 +147,27 @@ static const char link_sysmode_usage_str[] =
 static const char link_funmode_usage_str[] =
 	"Usage: link funmode [option] | --read\n"
 	"Options:\n"
-	"  -r, --read,              Read modem functional mode\n"
-	"  -0, --pwroff,            Set modem to minimum functionality mode\n"
-	"  -1, --normal,            Set modem to normal mode\n"
-	"      --normal_no_rel14,   Set modem to normal mode without enabling Release 14 features\n"
-	"  -2, --rxonly,            Set modem to RX only mode\n"
-	"  -4, --flightmode,        Set modem to flight mode\n"
-	"      --lteoff,            Deactivate LTE\n"
-	"      --lteon,             Activate LTE\n"
-	"      --gnssoff,           Deactivate GNSS\n"
-	"      --gnsson,            Activate GNSS\n"
-	"      --uiccoff,           Deactivate UICC\n"
-	"      --uiccon,            Activate UICC\n"
-	"      --flightmode_uiccon, Set modem to flight mode without shutting down UICC\n"
-	"  -h, --help,              Shows this help information";
+	"  -r, --read,            Read modem functional mode\n"
+	"  -0, --pwroff,          Set modem to minimum functionality mode\n"
+	"  -1, --normal,          Set modem to normal mode\n"
+	"      --normal_no_rel14, Set modem to normal mode without enabling Release 14 features\n"
+	"  -2, --rxonly,          Set modem to RX only mode\n"
+	"  -4, --flightmode,      Set modem to flight mode\n"
+	"      --lteoff,          Deactivate LTE\n"
+	"      --lteon,           Activate LTE\n"
+	"      --gnssoff,         Deactivate GNSS\n"
+	"      --gnsson,          Activate GNSS\n"
+	"      --uiccoff,         Deactivate UICC\n"
+	"      --uiccon,          Activate UICC\n"
+	"      --flightmode_uiccon,\n"
+	"                         Set modem to flight mode without shutting down UICC\n"
+	"      --flightmode_keepreg,\n"
+	"                         Set modem to flight mode while preserving the LTE registration\n"
+	"                         context\n"
+	"      --flightmode_keepreg_uiccon,\n"
+	"                         Set modem to flight mode while preserving the LTE\n"
+	"                         registration context and without shutting down UICC\n"
+	"  -h, --help,            Shows this help information";
 
 static const char link_normal_mode_at_usage_str[] =
 	"Usage: link nmodeat --read | --mem<1-3>\n"
@@ -375,6 +383,7 @@ static const char link_modem_usage_str[] =
 	"      --init,           Initialize modem using nrf_modem_lib_init()\n"
 	"      --shutdown,       Shutdown modem\n"
 	"      --shutdown_cfun0, Send AT+CFUN=0 AT command and shutdown modem\n"
+	"      --systemoff,      Send AT+CFUN=0 AT command, shutdown modem and trigger SYSTEMOFF\n"
 	"  -h, --help,           Shows this help information\n"
 	"\n"
 	"Several options can be given and they are run in the given order.";
@@ -424,6 +433,8 @@ enum {
 	LINK_SHELL_OPT_FUNMODE_UICCOFF,
 	LINK_SHELL_OPT_FUNMODE_UICCON,
 	LINK_SHELL_OPT_FUNMODE_FLIGHTMODE_UICCON,
+	LINK_SHELL_OPT_FUNMODE_FLIGHTMODE_KEEPREG,
+	LINK_SHELL_OPT_FUNMODE_FLIGHTMODE_KEEPREG_UICCON,
 	LINK_SHELL_OPT_THRESHOLD_TIME,
 	LINK_SHELL_OPT_START,
 	LINK_SHELL_OPT_STOP,
@@ -448,6 +459,7 @@ enum {
 	LINK_SHELL_OPT_MODEM_INIT,
 	LINK_SHELL_OPT_MODEM_SHUTDOWN,
 	LINK_SHELL_OPT_MODEM_SHUTDOWN_CFUN0,
+	LINK_SHELL_OPT_MODEM_SYSTEMOFF,
 	LINK_SHELL_OPT_ENVEVAL_EVAL_TYPE,
 	LINK_SHELL_OPT_ENVEVAL_PLMNS,
 };
@@ -474,6 +486,9 @@ static struct option long_options[] = {
 	{ "uiccoff", no_argument, 0, LINK_SHELL_OPT_FUNMODE_UICCOFF },
 	{ "uiccon", no_argument, 0, LINK_SHELL_OPT_FUNMODE_UICCON },
 	{ "flightmode_uiccon", no_argument, 0, LINK_SHELL_OPT_FUNMODE_FLIGHTMODE_UICCON },
+	{ "flightmode_keepreg", no_argument, 0, LINK_SHELL_OPT_FUNMODE_FLIGHTMODE_KEEPREG },
+	{ "flightmode_keepreg_uiccon", no_argument, 0,
+	  LINK_SHELL_OPT_FUNMODE_FLIGHTMODE_KEEPREG_UICCON },
 	{ "ltem", no_argument, 0, 'm' },
 	{ "nbiot", no_argument, 0, 'n' },
 	{ "gnss", no_argument, 0, 'g' },
@@ -528,6 +543,7 @@ static struct option long_options[] = {
 	{ "init", no_argument, 0, LINK_SHELL_OPT_MODEM_INIT },
 	{ "shutdown", no_argument, 0, LINK_SHELL_OPT_MODEM_SHUTDOWN },
 	{ "shutdown_cfun0", no_argument, 0, LINK_SHELL_OPT_MODEM_SHUTDOWN_CFUN0 },
+	{ "systemoff", no_argument, 0, LINK_SHELL_OPT_MODEM_SYSTEMOFF },
 	{ "eval_type", required_argument, 0, LINK_SHELL_OPT_ENVEVAL_EVAL_TYPE },
 	{ "plmns", required_argument, 0, LINK_SHELL_OPT_ENVEVAL_PLMNS },
 	{ 0, 0, 0, 0 }
@@ -1644,6 +1660,12 @@ static int link_shell_funmode(const struct shell *shell, size_t argc, char **arg
 		case LINK_SHELL_OPT_FUNMODE_FLIGHTMODE_UICCON:
 			funmode_option = LTE_LC_FUNC_MODE_OFFLINE_UICC_ON;
 			break;
+		case LINK_SHELL_OPT_FUNMODE_FLIGHTMODE_KEEPREG:
+			funmode_option = LTE_LC_FUNC_MODE_OFFLINE_KEEP_REG;
+			break;
+		case LINK_SHELL_OPT_FUNMODE_FLIGHTMODE_KEEPREG_UICCON:
+			funmode_option = LTE_LC_FUNC_MODE_OFFLINE_KEEP_REG_UICC_ON;
+			break;
 		case LINK_SHELL_OPT_NMODE_NO_REL14:
 			funmode_option = LTE_LC_FUNC_MODE_NORMAL;
 			nmode_use_rel14 = false;
@@ -1718,6 +1740,14 @@ static int link_shell_modem(const struct shell *shell, size_t argc, char **argv)
 			 */
 			nrf_modem_at_printf("AT+CFUN=0");
 			nrf_modem_lib_shutdown();
+			break;
+		case LINK_SHELL_OPT_MODEM_SYSTEMOFF:
+			operation_selected = true;
+			nrf_modem_at_printf("AT+CFUN=0");
+			nrf_modem_lib_shutdown();
+			printk("Entering SYSTEMOFF in 1 second, wakeup only with reset\n");
+			k_sleep(K_SECONDS(1));
+			sys_poweroff();
 			break;
 
 		case 'h':

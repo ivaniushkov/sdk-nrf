@@ -32,28 +32,88 @@ extern "C" {
  */
 enum lte_lc_nw_reg_status {
 	/** Not registered. UE is not currently searching for an operator to register to. */
-	LTE_LC_NW_REG_NOT_REGISTERED		= 0,
+	LTE_LC_NW_REG_NOT_REGISTERED			= 0,
 
 	/** Registered, home network. */
-	LTE_LC_NW_REG_REGISTERED_HOME		= 1,
+	LTE_LC_NW_REG_REGISTERED_HOME			= 1,
 
 	/**
 	 * Not registered, but UE is currently trying to attach or searching for an operator to
 	 * register to.
 	 */
-	LTE_LC_NW_REG_SEARCHING			= 2,
+	LTE_LC_NW_REG_SEARCHING				= 2,
 
 	/** Registration denied. */
-	LTE_LC_NW_REG_REGISTRATION_DENIED	= 3,
+	LTE_LC_NW_REG_REGISTRATION_DENIED		= 3,
 
 	/** Unknown, for example out of LTE coverage. */
-	LTE_LC_NW_REG_UNKNOWN			= 4,
+	LTE_LC_NW_REG_UNKNOWN				= 4,
 
 	/** Registered, roaming. */
-	LTE_LC_NW_REG_REGISTERED_ROAMING	= 5,
+	LTE_LC_NW_REG_REGISTERED_ROAMING		= 5,
+
+	/**
+	 * Not registered. UE is not currently searching for an operator to register to.
+	 * Device in receive only mode.
+	 *
+	 * @note This is only supported by the following modem firmware:
+	 *       - mfw_nrf9151-ntn
+	 */
+	LTE_LC_NW_REG_RX_ONLY_NOT_REGISTERED		= 50,
+
+	/**
+	 * Registered in stored cellular profile, home network. Device in receive only mode.
+	 *
+	 * @note This is only supported by the following modem firmware:
+	 *       - mfw_nrf9151-ntn
+	 */
+	LTE_LC_NW_REG_RX_ONLY_REGISTERED_HOME		= 51,
+
+	/**
+	 * Not registered, but UE is currently trying to attach or searching for an operator to
+	 * register to. Device in receive only mode.
+	 *
+	 * @note This is only supported by the following modem firmware:
+	 *       - mfw_nrf9151-ntn
+	 */
+	LTE_LC_NW_REG_RX_ONLY_SEARCHING			= 52,
+
+	/**
+	 * Registration denied. Device in receive only mode.
+	 *
+	 * @note This is only supported by the following modem firmware:
+	 *       - mfw_nrf9151-ntn
+	 */
+	LTE_LC_NW_REG_RX_ONLY_REGISTRATION_DENIED	= 53,
+
+	/**
+	 * Unknown, for example, out of LTE coverage. Device in receive only mode.
+	 *
+	 * @note This is only supported by the following modem firmware:
+	 *       - mfw_nrf9151-ntn
+	 */
+	LTE_LC_NW_REG_RX_ONLY_UNKNOWN			= 54,
+
+	/**
+	 * Registered in stored cellular profile, roaming. Device in receive only mode.
+	 *
+	 * @note This is only supported by the following modem firmware:
+	 *       - mfw_nrf9151-ntn
+	 */
+	LTE_LC_NW_REG_RX_ONLY_REGISTERED_ROAMING	= 55,
 
 	/** Not registered due to UICC failure. */
-	LTE_LC_NW_REG_UICC_FAIL			= 90
+	LTE_LC_NW_REG_UICC_FAIL				= 90,
+
+	/**
+	 * The modem has completed searches, but no suitable cell for normal service was found.
+	 *
+	 * This may be used as a trigger for changing the configured system mode.
+	 *
+	 * @note This is only supported by the following modem firmware:
+	 *       - mfw_nrf9151-ntn
+	 */
+	LTE_LC_NW_REG_NO_SUITABLE_CELL			= 91
 };
 
 /** System mode. */
@@ -172,14 +232,14 @@ enum lte_lc_func_mode {
 	 *
 	 * Disables both transmit and receive RF circuits and deactivates LTE and GNSS.
 	 */
-	LTE_LC_FUNC_MODE_POWER_OFF		= 0,
+	LTE_LC_FUNC_MODE_POWER_OFF			= 0,
 
 	/**
 	 * Sets the device to full functionality.
 	 *
 	 * Both LTE and GNSS will become active if the respective system modes are enabled.
 	 */
-	LTE_LC_FUNC_MODE_NORMAL			= 1,
+	LTE_LC_FUNC_MODE_NORMAL				= 1,
 
 	/**
 	 * Sets the device to receive only functionality.
@@ -204,35 +264,58 @@ enum lte_lc_func_mode {
 	 * @ref LTE_LC_FUNC_MODE_ACTIVATE_LTE. Device should not be left in receive only mode for
 	 * longer than necessary, because current consumption will be elevated.
 	 */
-	LTE_LC_FUNC_MODE_RX_ONLY		= 2,
+	LTE_LC_FUNC_MODE_RX_ONLY			= 2,
 
 	/**
 	 * Sets the device to flight mode.
 	 *
 	 * Disables both transmit and receive RF circuits and deactivates LTE and GNSS services.
 	 */
-	LTE_LC_FUNC_MODE_OFFLINE		= 4,
+	LTE_LC_FUNC_MODE_OFFLINE			= 4,
 
 	/** Deactivates LTE without shutting down GNSS services. */
-	LTE_LC_FUNC_MODE_DEACTIVATE_LTE		= 20,
+	LTE_LC_FUNC_MODE_DEACTIVATE_LTE			= 20,
 
 	/** Activates LTE without changing GNSS. */
-	LTE_LC_FUNC_MODE_ACTIVATE_LTE		= 21,
+	LTE_LC_FUNC_MODE_ACTIVATE_LTE			= 21,
 
 	/** Deactivates GNSS without shutting down LTE services. */
-	LTE_LC_FUNC_MODE_DEACTIVATE_GNSS	= 30,
+	LTE_LC_FUNC_MODE_DEACTIVATE_GNSS		= 30,
 
 	/** Activates GNSS without changing LTE. */
-	LTE_LC_FUNC_MODE_ACTIVATE_GNSS		= 31,
+	LTE_LC_FUNC_MODE_ACTIVATE_GNSS			= 31,
 
 	/** Deactivates UICC. */
-	LTE_LC_FUNC_MODE_DEACTIVATE_UICC	= 40,
+	LTE_LC_FUNC_MODE_DEACTIVATE_UICC		= 40,
 
 	/** Activates UICC. */
-	LTE_LC_FUNC_MODE_ACTIVATE_UICC		= 41,
+	LTE_LC_FUNC_MODE_ACTIVATE_UICC			= 41,
 
 	/** Sets the device to flight mode without shutting down UICC. */
-	LTE_LC_FUNC_MODE_OFFLINE_UICC_ON	= 44,
+	LTE_LC_FUNC_MODE_OFFLINE_UICC_ON		= 44,
+
+	/**
+	 * Sets the device to flight mode while preserving the LTE registration context.
+	 *
+	 * Used to change the active cellular profile when using a dual UICC solution where one
+	 * of the UICCs is a SoftSIM. Allowed only when two cellular profiles have been configured.
+	 *
+	 * @note This is only supported by the following modem firmware:
+	 *       - mfw_nrf9151-ntn
+	 */
+	LTE_LC_FUNC_MODE_OFFLINE_KEEP_REG		= 45,
+
+	/**
+	 * Sets the device to flight mode while preserving the LTE registration context and
+	 * without shutting down the UICC.
+	 *
+	 * Used to change the active cellular profile when using an eUICC solution with dual
+	 * profiles. Allowed only when two cellular profiles have been configured.
+	 *
+	 * @note This is only supported by the following modem firmware:
+	 *       - mfw_nrf9151-ntn
+	 */
+	LTE_LC_FUNC_MODE_OFFLINE_KEEP_REG_UICC_ON	= 46
 };
 
 /** Event type. */
@@ -508,11 +591,6 @@ struct lte_lc_cell {
 	 * Timing advance measurement time in milliseconds, calculated from modem boot time.
 	 *
 	 * Range 0 - 18 446 744 073 709 551 614 ms.
-	 *
-	 * @note This is only supported by the following modem firmware:
-	 *       - mfw_nrf9160 >= v1.3.1
-	 *       - mfw_nrf91x1
-	 *       - mfw_nrf9151-ntn
 	 */
 	uint64_t timing_advance_meas_time;
 
@@ -1060,11 +1138,6 @@ enum lte_lc_neighbor_search_type {
 	 * networks might be deployed, in other words, a light search. The search is limited to
 	 * bands that are valid for the area of the current ITU-T region. If RPLMN is not found
 	 * based on previous cell history, the modem accepts any found PLMN.
-	 *
-	 * @note This is only supported by the following modem firmware:
-	 *       - mfw_nrf9160 >= v1.3.1
-	 *       - mfw_nrf91x1
-	 *       - mfw_nrf9151-ntn
 	 */
 	LTE_LC_NEIGHBOR_SEARCH_TYPE_EXTENDED_LIGHT = 2,
 
@@ -1072,21 +1145,11 @@ enum lte_lc_neighbor_search_type {
 	 * The modem follows the same procedure as for
 	 * @ref LTE_LC_NEIGHBOR_SEARCH_TYPE_EXTENDED_LIGHT, but will continue to perform a complete
 	 * search instead of a light search, and the search is performed for all supported bands.
-	 *
-	 * @note This is only supported by the following modem firmware:
-	 *       - mfw_nrf9160 >= v1.3.1
-	 *       - mfw_nrf91x1
-	 *       - mfw_nrf9151-ntn
 	 */
 	LTE_LC_NEIGHBOR_SEARCH_TYPE_EXTENDED_COMPLETE = 3,
 
 	/**
 	 * GCI search, option 1. Modem searches EARFCNs based on previous cell history.
-	 *
-	 * @note This is only supported by the following modem firmware:
-	 *       - mfw_nrf9160 >= v1.3.4
-	 *       - mfw_nrf91x1
-	 *       - mfw_nrf9151-ntn
 	 */
 	LTE_LC_NEIGHBOR_SEARCH_TYPE_GCI_DEFAULT = 4,
 
@@ -1095,11 +1158,6 @@ enum lte_lc_neighbor_search_type {
 	 * @ref LTE_LC_NEIGHBOR_SEARCH_TYPE_GCI_DEFAULT. If less than gci_count cells were found,
 	 * the modem performs a light search on bands that are valid for the area of the current
 	 * ITU-T region.
-	 *
-	 * @note This is only supported by the following modem firmware:
-	 *       - mfw_nrf9160 >= v1.3.4
-	 *       - mfw_nrf91x1
-	 *       - mfw_nrf9151-ntn
 	 */
 	LTE_LC_NEIGHBOR_SEARCH_TYPE_GCI_EXTENDED_LIGHT = 5,
 
@@ -1107,11 +1165,6 @@ enum lte_lc_neighbor_search_type {
 	 * GCI search, option 3. Modem starts with the same search method as in
 	 * @ref LTE_LC_NEIGHBOR_SEARCH_TYPE_GCI_DEFAULT. If less than gci_count cells were found,
 	 * the modem performs a complete search on all supported bands.
-	 *
-	 * @note This is only supported by the following modem firmware:
-	 *       - mfw_nrf9160 >= v1.3.4
-	 *       - mfw_nrf91x1
-	 *       - mfw_nrf9151-ntn
 	 */
 	LTE_LC_NEIGHBOR_SEARCH_TYPE_GCI_EXTENDED_COMPLETE = 6,
 };
@@ -1126,11 +1179,6 @@ struct lte_lc_ncellmeas_params {
 	 *
 	 * Current cell is counted as one cell. Mandatory with the GCI search types, ignored with
 	 * other search types.
-	 *
-	 * @note This is only supported by the following modem firmware:
-	 *       - mfw_nrf9160 >= v1.3.4
-	 *       - mfw_nrf91x1
-	 *       - mfw_nrf9151-ntn
 	 */
 	uint8_t gci_count;
 };
@@ -1865,12 +1913,6 @@ int lte_lc_lte_mode_get(enum lte_lc_lte_mode *mode);
  * selection before calling this function. This can be determined from the
  * @ref LTE_LC_EVT_MODEM_EVENT event with modem event @ref LTE_LC_MODEM_EVT_SEARCH_DONE.
  *
- * @note In @ref LTE_LC_FUNC_MODE_NORMAL and @ref LTE_LC_FUNC_MODE_ACTIVATE_LTE functional modes,
- *       this is only supported by the following modem firmware:
- *       - mfw_nrf9160 >= v1.3.0
- *       - mfw_nrf91x1
- *       - mfw_nrf9151-ntn
- *
  * @note In @ref LTE_LC_FUNC_MODE_RX_ONLY functional mode, this is only supported by the following
  *       modem firmware:
  *       - mfw_nrf91x1 >= v2.0.3
@@ -1980,11 +2022,6 @@ int lte_lc_env_eval_cancel(void);
  *
  * See @ref lte_lc_modem_evt for more information on which events may be received.
  * An event handler must be registered to receive events.
- *
- * @note This is only supported by the following modem firmware:
- *       - mfw_nrf9160 >= v1.3.0
- *       - mfw_nrf91x1
- *       - mfw_nrf9151-ntn
  *
  * @retval 0 if successful.
  * @retval -EFAULT if AT command failed.

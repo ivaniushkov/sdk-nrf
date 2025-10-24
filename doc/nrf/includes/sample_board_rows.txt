@@ -265,11 +265,11 @@
 
 .. nrf54lv10dk_nrf54lv10a_cpuapp
 
-| nRF54LV10 DK |   | nrf54lv10dk | ``nrf54lv10dk/nrf54lv10a/cpuapp`` |
+| nRF54LV10 DK | PCA10188 | nrf54lv10dk | ``nrf54lv10dk/nrf54lv10a/cpuapp`` |
 
 .. nrf54lv10dk_nrf54lv10a_cpuapp_ns
 
-| nRF54LV10 DK |   | nrf54lv10dk | ``nrf54lv10dk/nrf54lv10a/cpuapp/ns`` |
+| nRF54LV10 DK | PCA10188 | nrf54lv10dk | ``nrf54lv10dk/nrf54lv10a/cpuapp/ns`` |
 
 .. nrf54lm20pdk_nrf54lm20a_cpuapp
 
@@ -290,3 +290,7 @@
 .. nrf54ls05dk_nrf54ls05b_cpuapp
 
 | nRF54LS05 DK |   | nrf54ls05dk | ``nrf54ls05dk/nrf54ls05b/cpuapp`` |
+
+.. nrf7120pdk_nrf7120_cpuapp
+
+| nRF7120 PDK |   | nrf7120pdk | ``nrf7120pdk/nrf7120/cpuapp`` |

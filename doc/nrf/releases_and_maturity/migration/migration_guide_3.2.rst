@@ -79,6 +79,16 @@ Matter
        #. Set the :kconfig:option:`SB_CONFIG_DFU_MULTI_IMAGE_PACKAGE_WIFI_FW_PATCH` Kconfig option to ``n``.
        #. Set the :kconfig:option:`SB_CONFIG_MCUBOOT_UPDATEABLE_IMAGES` Kconfig option to ``2``.
 
+     * The Kconfig options ``CONFIG_CHIP_SPI_NOR`` and ``CONFIG_CHIP_QSPI_NOR`` have been removed.
+       Instead, use the standard options :kconfig:option:`CONFIG_SPI_NOR` and :kconfig:option:`CONFIG_NORDIC_QSPI_NOR`.
+       The configuration system will now automatically enable these options when the corresponding SPI or QSPI device is specified in the devicetree.
+       This change ensures more consistent configuration by relying on the standard Kconfig options when external NOR flash devices are present.
+
+    * All Matter over Wi-Fi samples and applications now enable the :kconfig:option:`CONFIG_CHIP_WIFI` and :kconfig:option:`CONFIG_WIFI_NRF70` Kconfig options, depending on the board used.
+      Previously, :kconfig:option:`CONFIG_CHIP_WIFI` was enabled in the Matter stack configuration if the nRF7002 DK or nRF7002 EK was used, which caused issues when building the application with custom boards.
+
+      To build your custom board with Wi-Fi support, set both the :kconfig:option:`CONFIG_CHIP_WIFI` and :kconfig:option:`CONFIG_WIFI_NRF70` Kconfig options to ``y``.
+
 Libraries
 =========
 
@@ -123,11 +133,16 @@ This section describes the changes related to samples and applications.
 MCUboot
 -------
 
-The default C library for MCUboot has changed to picolibc.
-Picolibc is recommended over the minimal C library as it is a fully developed and supported C library designed for application usage.
-If you have not explicitly specified the C library in your sysbuild project for MCUboot using either a :file:`sysbuild/mcuboot/prj.conf` file or :file:`sysbuild/mcuboot.conf` file, picolibc will be used by default.
-To set picolibc in your project, use the :kconfig:option:`CONFIG_PICOLIBC` Kconfig option.
-If you need to use the minimal C library (which is not recommended outside of testing scenarios), use the :kconfig:option:`CONFIG_MINIMAL_LIBC` Kconfig option.
+.. toggle::
+
+   * The default C library for MCUboot has changed to picolibc.
+     Picolibc is recommended over the minimal C library as it is a fully developed and supported C library designed for application usage.
+     If you have not explicitly specified the C library in your sysbuild project for MCUboot using either a :file:`sysbuild/mcuboot/prj.conf` file or :file:`sysbuild/mcuboot.conf` file, picolibc will be used by default.
+     To set picolibc in your project, use the :kconfig:option:`CONFIG_PICOLIBC` Kconfig option.
+     If you need to use the minimal C library (which is not recommended outside of testing scenarios), use the :kconfig:option:`CONFIG_MINIMAL_LIBC` Kconfig option.
+   * MCUboot image IDs are no longer taken from sysbuild Kconfig options and are instead automatically assigned.
+     See :ref:`sysbuild_assigned_images_ids` for details on how to get the values from the sysbuild cache as these are no longer available in the sysbuild Kconfig tree.
+     Application Kconfig values for image IDs remain present and their functionality is the same as in |NCS| v3.1.0.
 
 Libraries
 =========

@@ -173,8 +173,11 @@
   - "modules/trusted-firmware-m/*"
   - "samples/nrf5340/netboot/**/*"
   - "samples/nrf5340/extxip_smp_svr/**/*"
+  - "samples/zephyr/smp_svr_mini_boot/**/*"
+  - "samples/zephyr/subsys/mgmt/mcumgr/smp_svr/**/*"
   - "samples/bootloader/**/*"
   - "samples/mcuboot/**/*"
+  - "samples/nrf_compress/**/*"
   - "scripts/bootloader/**/*"
   - "scripts/nrf_compress/**/*"
   - "scripts/west_commands/ncs*"
@@ -267,6 +270,7 @@
   - "include/bluetooth/mesh/**/*"
   - "tests/subsys/bluetooth/mesh/**/*"
   - "samples/bluetooth/mesh/**/*"
+  - "scripts/requirements-fixed.txt"
 
 "CI-thingy91-test":
   - "modules/cjson/**/*"
