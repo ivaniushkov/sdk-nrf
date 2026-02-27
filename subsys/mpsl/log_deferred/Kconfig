@@ -1,0 +1,37 @@
+#
+# Copyright (c) 2025 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+config MPSL_LOG
+	bool "Enable SDC/MPSL deferred logging"
+	depends on SOC_SERIES_NRF54L || SOC_SERIES_BSIM_NRF54LX
+	help
+	  Enable deferred logging from SDC and MPSL. Log messages are enqueued
+	  in a FIFO and printed by a dedicated thread to avoid impacting
+	  time-critical radio operations.
+
+if MPSL_LOG
+
+config MPSL_LOG_LEVEL
+	int "MPSL log level"
+	default 3
+	range 0 4
+	help
+	  Maximum severity level for MPSL deferred logs: 0=none, 1=err, 2=wrn,
+	  3=inf, 4=dbg.
+
+config MPSL_LOG_FIFO_SIZE
+	int "MPSL log FIFO size"
+	default 32
+	help
+	  Number of log message IDs that can be enqueued before dropping.
+
+config MPSL_LOG_THREAD_STACK_SIZE
+	int "MPSL log thread stack size"
+	default 512
+	help
+	  Stack size for the thread that drains the log FIFO and prints messages.
+
+endif # MPSL_LOG
