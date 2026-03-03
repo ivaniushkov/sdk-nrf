@@ -327,27 +327,67 @@ static __aligned(8) uint8_t sdc_mempool[MEMPOOL_SIZE];
 #if IS_ENABLED(CONFIG_BT_CTLR_ASSERT_HANDLER)
 extern void bt_ctlr_assert_handle(char *file, uint32_t line);
 
-void sdc_assertion_handler(const char *const file, const uint32_t line)
+void sdc_assertion_handler(const char *const file, const uint32_t line, uint32_t log_msg_id)
 {
+	(void)log_msg_id;
 	bt_ctlr_assert_handle((char *) file, line);
 }
 
 #else /* !IS_ENABLED(CONFIG_BT_CTLR_ASSERT_HANDLER) */
-void sdc_assertion_handler(const char *const file, const uint32_t line)
+#if defined(CONFIG_MPSL_LOG)
+#include "sdc_log_msg.h"
+#define MPSL_LOG_GROUP_SHIFT  29
+#define MPSL_LOG_FILE_ID_MASK 0x1FFFU
+#define MPSL_LOG_COUNTER_MASK 0xFFFFU
+
+static const char *sdc_assert_log_msg_lookup(uint32_t msg_id)
+{
+	uint32_t log_file_id = (msg_id >> 16) & MPSL_LOG_FILE_ID_MASK;
+	uint32_t counter = msg_id & MPSL_LOG_COUNTER_MASK;
+
+	if (log_file_id < SDC_LOG_FILE_COUNT &&
+	    counter < sdc_log_msg_count[log_file_id]) {
+		return sdc_log_msgs[log_file_id][counter];
+	}
+	return "(unknown)";
+}
+#endif /* CONFIG_MPSL_LOG */
+
+void sdc_assertion_handler(const char *const file, const uint32_t line, uint32_t log_msg_id)
 {
 	volatile char assert_file_id[11] = { 0 };
 	volatile uint32_t assert_line = line;
+	const char *log_msg = NULL;
 
 	strncpy((char *)assert_file_id, file, sizeof(assert_file_id) - 1);
 
+#if defined(CONFIG_MPSL_LOG)
+	if (log_msg_id != SDC_ASSERT_LOG_MSG_ID_NONE) {
+		log_msg = sdc_assert_log_msg_lookup(log_msg_id);
+	}
+#endif
+
 #if defined(CONFIG_ASSERT) && defined(CONFIG_ASSERT_VERBOSE) && !defined(CONFIG_ASSERT_NO_MSG_INFO)
-	__ASSERT(false, "SoftDevice Controller ASSERT: %s, %d\n",
-		(char *)assert_file_id, assert_line);
+	if (log_msg != NULL) {
+		__ASSERT(false, "SoftDevice Controller ASSERT: %s, %d: %s\n",
+			(char *)assert_file_id, assert_line, log_msg);
+	} else {
+		__ASSERT(false, "SoftDevice Controller ASSERT: %s, %d\n",
+			(char *)assert_file_id, assert_line);
+	}
 #elif defined(CONFIG_LOG)
-	LOG_ERR("SoftDevice Controller ASSERT: %s, %d", (char *)assert_file_id, assert_line);
+	if (log_msg != NULL) {
+		LOG_ERR("SoftDevice Controller ASSERT: %s, %d: %s", (char *)assert_file_id, assert_line, log_msg);
+	} else {
+		LOG_ERR("SoftDevice Controller ASSERT: %s, %d", (char *)assert_file_id, assert_line);
+	}
 	k_oops();
 #elif defined(CONFIG_PRINTK)
-	printk("SoftDevice Controller ASSERT: %s, %d\n", (char *)assert_file_id, assert_line);
+	if (log_msg != NULL) {
+		printk("SoftDevice Controller ASSERT: %s, %d: %s\n", (char *)assert_file_id, assert_line, log_msg);
+	} else {
+		printk("SoftDevice Controller ASSERT: %s, %d\n", (char *)assert_file_id, assert_line);
+	}
 	printk("\n");
 	k_oops();
 #else
