@@ -424,6 +424,10 @@ int sw_codec_uninit(struct sw_codec_config sw_codec_cfg)
 			}
 			m_config.decoder.enabled = false;
 		}
+		ret = sw_codec_lc3_uninit();
+		if (ret) {
+			return ret;
+		}
 #endif /* (CONFIG_SW_CODEC_LC3) */
 		break;
 	default:
@@ -443,9 +447,12 @@ int sw_codec_init(struct sw_codec_config sw_codec_cfg)
 	switch (sw_codec_cfg.sw_codec) {
 	case SW_CODEC_LC3: {
 #if (CONFIG_SW_CODEC_LC3)
-		if (m_config.sw_codec != SW_CODEC_LC3) {
+		if (!m_config.initialized) {
 			/* Check if LC3 is already initialized */
-			ret = sw_codec_lc3_init(NULL, NULL, CONFIG_AUDIO_FRAME_DURATION_US);
+			uint16_t encoder_sample_rate = sw_codec_cfg.encoder.enabled ? sw_codec_cfg.encoder.sample_rate_hz : 0;
+			uint16_t decoder_sample_rate = sw_codec_cfg.decoder.enabled ? sw_codec_cfg.decoder.sample_rate_hz : 0;
+			ret = sw_codec_lc3_init(encoder_sample_rate, decoder_sample_rate,
+						NULL, NULL, CONFIG_AUDIO_FRAME_DURATION_US);
 			if (ret) {
 				return ret;
 			}
