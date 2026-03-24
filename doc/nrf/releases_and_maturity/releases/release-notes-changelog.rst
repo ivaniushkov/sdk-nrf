@@ -220,6 +220,8 @@ nRF5340 Audio
 * Added the :kconfig:option:`CONFIG_BT_AUDIO_BROADCAST_BASE_PRINT` kconfig option to print the contents of the BASE when it is received.
   This option is useful for debugging purposes.
   It is only valid for the :ref:`broadcast sink application <nrf53_audio_broadcast_sink_app>`.
+* :kconfig:option:`CONFIG_LTO` to enable link-time optimization for the application.
+  It improves application performance and reduces code size.
 
 nRF Desktop
 -----------
