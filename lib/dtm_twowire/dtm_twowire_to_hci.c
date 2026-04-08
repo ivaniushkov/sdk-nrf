@@ -303,14 +303,7 @@ static uint16_t on_test_rx_cmd(uint8_t channel, struct net_buf *hci_cmd)
 
 	struct bt_hci_cmd_hdr *cmd_hdr = net_buf_add(hci_cmd, BT_HCI_CMD_HDR_SIZE);
 
-#if CONFIG_DTM_TWOWIRE_TO_HCI_RECEIVER_TEST_VERSION == 3
-	cmd_hdr->opcode = BT_HCI_OP_LE_RX_TEST_V3;
-	/* TODO: DRGN-27910 add CTE and antenna switching support */
-	cmd_hdr->param_len = sizeof(struct bt_hci_cp_le_rx_test_v3);
-	struct bt_hci_cp_le_rx_test_v3 *cp = net_buf_add(hci_cmd,
-							 sizeof(struct bt_hci_cp_le_rx_test_v3));
-
-#elif CONFIG_DTM_TWOWIRE_TO_HCI_RECEIVER_TEST_VERSION == 2
+#if CONFIG_DTM_TWOWIRE_TO_HCI_RECEIVER_TEST_VERSION == 2
 	cmd_hdr->opcode = BT_HCI_OP_LE_ENH_RX_TEST;
 	cmd_hdr->param_len = sizeof(struct bt_hci_cp_le_enh_rx_test);
 	struct bt_hci_cp_le_enh_rx_test *cp = net_buf_add(hci_cmd,

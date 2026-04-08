@@ -11,8 +11,7 @@ if DTM_TWOWIRE_TO_HCI
 
 config DTM_TWOWIRE_TO_HCI_RECEIVER_TEST_VERSION
 	int "HCI_LE_Receiver_Test command version"
-	range 1 3
-	default 3 if BT_CTLR_DTM_HCI_RX_V3
+	range 1 2
 	default 2
 	help
 		Selects the version of the HCI_LE_Receiver_Test command to generate,
