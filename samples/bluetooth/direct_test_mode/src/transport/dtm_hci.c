@@ -505,8 +505,7 @@ static int hci_rx_test(uint16_t opcode, const uint8_t *data)
 		return base_cc_evt(opcode, BT_HCI_ERR_HW_FAILURE);
 	}
 
-	if ((cte_len != 0) &&
-		(phy != BT_HCI_LE_TX_PHY_CODED_S8) && (phy != BT_HCI_LE_TX_PHY_CODED_S2)) {
+	if (cte_len != 0 && phy == BT_HCI_LE_RX_PHY_CODED) {
 		return base_cc_evt(opcode, BT_HCI_ERR_CMD_DISALLOWED);
 	}
 
@@ -518,7 +517,21 @@ static int hci_rx_test(uint16_t opcode, const uint8_t *data)
 	}
 
 	if (cte_len != 0) {
-		err = dtm_setup_set_cte_slot(slot_durations);
+               enum dtm_cte_slot_duration cte_slot;
+
+               switch (slot_durations) {
+               case BT_HCI_LE_ANTENNA_SWITCHING_SLOT_1US:
+                       cte_slot = DTM_CTE_SLOT_DURATION_1US;
+                       break;
+               case BT_HCI_LE_ANTENNA_SWITCHING_SLOT_2US:
+                       cte_slot = DTM_CTE_SLOT_DURATION_2US;
+                       break;
+               default:
+                       return base_cc_evt(opcode, BT_HCI_ERR_INVALID_PARAM);
+               }
+
+               err = dtm_setup_set_cte_slot(cte_slot);
+
 		if (err == -ENOTSUP) {
 			return base_cc_evt(opcode, BT_HCI_ERR_UNSUPP_FEATURE_PARAM_VAL);
 		} else if (err == -EINVAL) {
