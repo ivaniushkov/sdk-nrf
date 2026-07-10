@@ -703,6 +703,13 @@ config BT_CTLR_SDC_CS_T_PM_LEN_DEFAULT
 	default 20 if BT_CTLR_SDC_CS_T_PM_LEN_20_US
 	default 40 if BT_CTLR_SDC_CS_T_PM_LEN_40_US
 
+config BT_CTLR_SDC_CS_USE_LDO
+	bool "Use LDO in CS"
+	depends on BT_CTLR_CHANNEL_SOUNDING
+	select EXPERIMENTAL
+	help
+	  Use LDO in certain CS steps.
+
 config BT_CTLR_LE_PATH_LOSS_MONITORING
 	select BT_CTLR_LE_POWER_CONTROL
 
