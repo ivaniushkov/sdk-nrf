@@ -703,6 +703,7 @@ config BT_CTLR_SDC_CS_USE_LDO
 	depends on SOC_NRF54LM20A_CPUAPP || SOC_NRF54LM20B_CPUAPP || \
 		   SOC_NRF54L15_CPUAPP || SOC_NRF54L10_CPUAPP || \
 		   SOC_NRF54L05_CPUAPP
+	default y
 	select EXPERIMENTAL
 	help
 	  Use the LDO voltage regulator during Channel Sounding.
