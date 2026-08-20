@@ -1,0 +1,61 @@
+#
+# Copyright (c) 2025 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+config BT_CTLR_SDC_LOG
+	bool "Enable SoftDevice Controller logging"
+	depends on BT_LL_SOFTDEVICE_MULTIROLE
+	depends on SOC_SERIES_NRF54L || SOC_SERIES_BSIM_NRF54LX
+	select EXPERIMENTAL
+	help
+	  Enable logging from the SoftDevice Controller.
+	  Can be used to simplify debugging of HCI errors or other
+	  kinds of SDC failures.
+	  Note: it is only available on some builds of SDC.
+
+if BT_CTLR_SDC_LOG
+
+choice BT_CTLR_SDC_LOG_HANDLER
+	prompt "SDC log handler"
+	default BT_CTLR_SDC_LOG_HANDLER_BUILTIN
+
+config BT_CTLR_SDC_LOG_HANDLER_BUILTIN
+	bool "Built-in Zephyr logging handler"
+	select LOG
+	help
+	  Default handler using separate thread and log FIFO.
+
+config BT_CTLR_SDC_LOG_HANDLER_CUSTOM
+	bool "Custom application-provided handler"
+	help
+	  User-defined log handler.
+	  It shall implement all the mandatory SDC log callbacks.
+
+endchoice
+
+config BT_CTLR_SDC_LOG_PRINT_LEVEL
+	int "SDC log print level"
+	default 3
+	range 0 4
+	help
+	  Log message severity printed by the built-in handler.
+
+if BT_CTLR_SDC_LOG_HANDLER_BUILTIN
+
+config BT_CTLR_SDC_LOG_FIFO_SIZE
+	int "SDC log FIFO size"
+	default 32
+	help
+	  Number of log messages that can be enqueued before dropping.
+
+config BT_CTLR_SDC_LOG_THREAD_STACK_SIZE
+	int "SDC log thread stack size"
+	default 512
+	help
+	  Stack size for the thread that drains the log FIFO and prints messages.
+
+endif # BT_CTLR_SDC_LOG_HANDLER_BUILTIN
+
+endif # BT_CTLR_SDC_LOG

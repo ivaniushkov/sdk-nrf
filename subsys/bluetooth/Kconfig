@@ -61,6 +61,8 @@ rsource "mesh/Kconfig"
 
 rsource "services/Kconfig"
 
+rsource "sdc_log/Kconfig"
+
 endif # BT
 
 menu "BLE over nRF RPC"
