@@ -6,4 +6,4 @@
 
 zephyr_library()
 
-zephyr_library_sources(sdc_log_handler.c)
+zephyr_library_sources(mpsl_log_handler.c)
