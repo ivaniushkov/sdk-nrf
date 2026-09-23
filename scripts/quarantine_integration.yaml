@@ -51,19 +51,6 @@
   comment: "Configurations excluded to limit resources usage in integration builds"
 
 - scenarios:
-    - applications.nrf_desktop.zdebug_dongle_small
-  platforms:
-    - nrf52833dk/nrf52833
-  comment: "Configurations excluded to limit resources usage in integration builds"
-
-- scenarios:
-    - applications.nrf_desktop.zdebug_3bleconn
-    - applications.nrf_desktop.zrelease_4llpmconn
-  platforms:
-    - nrf52840dongle/nrf52840
-  comment: "Configurations excluded to limit resources usage in integration builds"
-
-- scenarios:
     - sample.bluetooth.peripheral_uart_minimal
   platforms:
     - nrf52833dk/nrf52820
@@ -157,5 +144,8 @@
     - tfm.psa_test_initial_attestation_lvl1
     - tfm.psa_test_initial_attestation_lvl2
   platforms:
+    - nrf5340dk/nrf5340/cpuapp/ns
+    - nrf54l15dk/nrf54l15/cpuapp/ns
     - nrf9151dk/nrf9151/ns
+    - nrf9161dk@0.9.0/nrf9161/ns
   comment: "Not stable - it does git clone during build - github stability problems"

@@ -1,0 +1,17 @@
+#
+# Copyright (c) 2025 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+config BT_CTLR_SDC_LOG
+	bool "Enable SoftDevice Controller logging"
+	depends on BT_LL_SOFTDEVICE_MULTIROLE
+	depends on SOC_SERIES_NRF54L || SOC_SERIES_BSIM_NRF54LX
+	select MPSL_LOG_HANDLER
+	select EXPERIMENTAL
+	help
+	  Contribute the SoftDevice Controller message table to the shared MPSL
+	  log handler (see CONFIG_MPSL_LOG_HANDLER), independently of
+	  CONFIG_MPSL_LOG. Can be used to simplify debugging of HCI errors or
+	  other kinds of SDC failures.

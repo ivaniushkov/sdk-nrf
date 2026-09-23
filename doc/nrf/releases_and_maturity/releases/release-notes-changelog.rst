@@ -341,6 +341,7 @@ nRF Desktop
 
   * Partition Manager support from the :ref:`nrf_desktop` application.
   * The deprecated Kconfig options ``CONFIG_DESKTOP_HID_REPORT_EXPIRATION`` and ``CONFIG_DESKTOP_HID_EVENT_QUEUE_SIZE``.
+  * Support for the nRF52 Series devices from the :ref:`nrf_desktop` application.
 
 Thingy:53: Matter weather station
 ---------------------------------
@@ -617,12 +618,20 @@ Networking samples
 
   * Fixed an issue with the sample's IPv6 support, where the device crashes when trying to communicate over IPv6.
 
+* :ref:`azure_iot_hub` sample:
+
+  * Updated the MCUboot boot partition size from 54 KB to 64 KB on the ``nrf54lm20dk/nrf54lm20a/cpuapp/ns`` and ``nrf54lm20dk/nrf54lm20b/cpuapp/ns`` board targets.
+
 * :ref:`https_client` sample:
 
   * Fixed an issue where the sample could try to connect over IPv4 or IPv6 even when the device had no local address for that family.
     The sample now uses only resolved addresses that match a ready local IPv4/IPv6 address.
 
 * :ref:`http_server` sample:
+
+  * Updated the number of available network connection slots for Wi-Fi builds.
+    The sample's base setup already consumed 6 of the 10 slots configured through :kconfig:option:`CONFIG_NET_MAX_CONN`, leaving only 4 for incoming client connections.
+    The value was increased from 10 to 16 for more headroom.
 
   * Fixed:
 
@@ -703,6 +712,14 @@ SUIT samples
 Trusted Firmware-M (TF-M) samples
 ---------------------------------
 
+* :ref:`tfm_psa_template` sample:
+
+  * Added support for nRF54L Series devices.
+
+* :ref:`provisioning_image` sample:
+
+  * Added support for nRF54L Series devices.
+
 * Added support for the nRF54LC10A SoC in the TF-M samples.
 
 Thread samples
@@ -727,6 +744,7 @@ Wi-Fi samples
       You must now explicitly select either the MQTT or the CoAP transport, using the new :file:`mqtt.conf` or the existing :file:`coap.conf` configuration file, respectively.
     * By re-enabling the :kconfig:option:`CONFIG_NET_IPV6` Kconfig option in the :file:`coap.conf` file.
       The option was previously disabled as a workaround for the slow IPv6-to-IPv4 fallback issue that has been fixed in :ref:`lib_nrf_cloud`.
+    * The MCUboot boot partition size from 48 KB to 64 KB on the ``nrf54lm20dk/nrf54lm20a/cpuapp/ns`` and ``nrf54lm20dk/nrf54lm20b/cpuapp/ns`` board targets.
 
   * Fixed:
 
@@ -1154,3 +1172,5 @@ Documentation
   * The :ref:`thingy53_app_guide` page by removing the Bluetooth Mesh samples from the list of samples that enable FOTA for Thingy:53 by default.
   * The :ref:`dfu_over_ble` page by removing the section about out-of-the-box point-to-point DFU over Bluetooth Low Energy on Thingy:53.
   * The :ref:`ug_bt_mesh_configuring` page by removing Thingy:53 as an example of a board with the Bluetooth LE Controller on a separate image.
+  * The :ref:`ug_nrf54h20_ironside_se_snapshot` page by adding a note about the snapshot services limitations.
+  * The :ref:`abi_compatibility` page by adding a section about |ISE| known issues.
