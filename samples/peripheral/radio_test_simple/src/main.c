@@ -12,12 +12,16 @@
  *   TIMER COMPARE[TONE_END] -> RADIO DISABLE
  *   RADIO DISABLED IRQ      -> count tones, stop TIMER after the last one
  *
- * Between bursts HFXO is released and constant latency mode is turned off, as MPSL does.
+ * TX_PIN is high while the carrier is on air: RADIO READY sets it, TONE_END clears it.
+ * Between bursts HFXO is released and constant latency mode is turned off.
  */
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/clock_control/nrf_clock_control.h>
-#include <nrfx.h>
+#include <soc.h>
+#include <nrfx_gpiote.h>
+#include <gpiote_nrfx.h>
+#include <helpers/nrfx_gppi.h>
 #include <hal/nrf_radio.h>
 #include <hal/nrf_timer.h>
 #include <hal/nrf_dppi.h>
@@ -36,9 +40,6 @@
 /* Time between consecutive TXEN triggers (tone starts). */
 #define TONE_INTERVAL_US (TONE_GAP_US + CS_T_PM_US)
 #define TONE_END_US      (TX_RAMPUP_US + CS_T_PM_US)
-
-BUILD_ASSERT(TONE_INTERVAL_US >= TONE_GAP_US + CS_T_PM_US,
-	     "Tone interval must leave at least TONE_GAP_US between tones");
 
 /* Number of tones per burst, followed by a pause with HFXO off. */
 #define BURST_TONES    75
@@ -61,6 +62,13 @@ BUILD_ASSERT(TONE_INTERVAL_US >= TONE_GAP_US + CS_T_PM_US,
 #define DPPIC           NRF_DPPIC10
 #define DPPI_CH_TXEN    0
 #define DPPI_CH_DISABLE 1
+#define DPPI_CH_READY   2
+#define DPPI_CH_MASK    (BIT(DPPI_CH_TXEN) | BIT(DPPI_CH_DISABLE) | BIT(DPPI_CH_READY))
+
+/* Pin indicating TX activity, LED1 (P1.10) on the nRF54L15 DK. */
+#define TX_PIN_NODE   DT_ALIAS(led1)
+#define TX_PIN        NRF_DT_GPIOS_TO_PSEL(TX_PIN_NODE, gpios)
+#define TX_PIN_GPIOTE (&GPIOTE_NRFX_INST_BY_NODE(NRF_DT_GPIOTE_NODE(TX_PIN_NODE, gpios)))
 
 static const struct device *const hfxo = DEVICE_DT_GET_ONE(nordic_nrf_clock_xo);
 static K_SEM_DEFINE(burst_done, 0, 1);
@@ -117,6 +125,7 @@ static void radio_config(void)
 
 	nrf_radio_subscribe_set(NRF_RADIO, NRF_RADIO_TASK_TXEN, DPPI_CH_TXEN);
 	nrf_radio_subscribe_set(NRF_RADIO, NRF_RADIO_TASK_DISABLE, DPPI_CH_DISABLE);
+	nrf_radio_publish_set(NRF_RADIO, NRF_RADIO_EVENT_READY, DPPI_CH_READY);
 
 	nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_DISABLED);
 	nrf_radio_int_enable(NRF_RADIO, NRF_RADIO_INT_DISABLED_MASK);
@@ -137,6 +146,42 @@ static void timer_config(void)
 	nrf_timer_publish_set(TIMER, TIMER_EVT_TONE_END, DPPI_CH_DISABLE);
 }
 
+/* Drives TX_PIN from radio domain DPPI channels, bridged to the pin's GPIOTE domain. */
+static int tx_pin_init(void)
+{
+	static const uint8_t radio_ch[] = {DPPI_CH_READY, DPPI_CH_DISABLE};
+	const nrfx_gpiote_output_config_t out_cfg = NRFX_GPIOTE_DEFAULT_OUTPUT_CONFIG;
+	nrfx_gpiote_task_config_t task_cfg = {
+		.polarity = NRF_GPIOTE_POLARITY_TOGGLE,
+		.init_val = NRF_GPIOTE_INITIAL_VALUE_LOW,
+	};
+	nrfx_gppi_resource_t res = {.domain_id = nrfx_gppi_domain_id_get((uint32_t)DPPIC)};
+	nrfx_gppi_handle_t handle;
+
+	if (nrfx_gpiote_channel_alloc(TX_PIN_GPIOTE, &task_cfg.task_ch) != 0 ||
+	    nrfx_gpiote_output_configure(TX_PIN_GPIOTE, TX_PIN, &out_cfg, &task_cfg) != 0) {
+		return -EIO;
+	}
+
+	const uint32_t gpiote_task[] = {
+		nrfx_gpiote_set_task_address_get(TX_PIN_GPIOTE, TX_PIN),
+		nrfx_gpiote_clr_task_address_get(TX_PIN_GPIOTE, TX_PIN),
+	};
+
+	for (size_t i = 0; i < ARRAY_SIZE(radio_ch); i++) {
+		res.channel = radio_ch[i];
+		if (nrfx_gppi_ext_conn_alloc(res.domain_id, nrfx_gppi_domain_id_get(gpiote_task[i]),
+					     &handle, &res) < 0) {
+			return -ENOMEM;
+		}
+		nrfx_gppi_ep_attach(gpiote_task[i], handle);
+		nrfx_gppi_conn_enable(handle);
+	}
+
+	nrfx_gpiote_out_task_enable(TX_PIN_GPIOTE, TX_PIN);
+	return 0;
+}
+
 static void burst_send(void)
 {
 	tones_sent = 0;
@@ -154,7 +199,11 @@ int main(void)
 {
 	IRQ_CONNECT(RADIO_IRQN, RADIO_IRQ_PRIO, radio_isr, NULL, 0);
 	irq_enable(RADIO_IRQN);
-	nrf_dppi_channels_enable(DPPIC, BIT(DPPI_CH_TXEN) | BIT(DPPI_CH_DISABLE));
+	nrf_dppi_channels_enable(DPPIC, DPPI_CH_MASK);
+
+	if (tx_pin_init() != 0) {
+		return 0;
+	}
 
 	while (clock_on() == 0) {
 		burst_send();
